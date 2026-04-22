@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-
-// Import your screen files here when you create them
-// import 'package:app/screens/login_screen.dart';
-// import 'package:app/screens/signup_screen.dart';
-// import 'package:app/screens/home_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/signup_screen.dart';
+import 'screens/dashboard_screen.dart';
+import 'screens/add_medicine_screen.dart';
+import 'screens/view_medicine_screen.dart';
 
 void main() {
   runApp(const MediCheckApp());
@@ -48,14 +48,13 @@ class MediCheckApp extends StatelessWidget {
       initialRoute: '/login',
       // Define all the routes for the application
       routes: {
-        '/login': (context) => const PlaceholderScreen(title: 'Login Screen'),
-        '/signup': (context) => const PlaceholderScreen(title: 'Signup Screen'),
-        '/home': (context) => const PlaceholderScreen(title: 'Home Screen'),
-        
-        // Uncomment these and remove the placeholders when screens are created
-        // '/login': (context) => const LoginScreen(),
-        // '/signup': (context) => const SignupScreen(),
-        // '/home': (context) => const HomeScreen(),
+        '/login':          (context) => const LoginScreen(),
+        '/signup':         (context) => const SignupScreen(),
+        '/home':           (context) => const DashboardScreen(),
+        '/add-medicine':   (context) => const AddMedicineScreen(),
+        '/view-medicines': (context) => const ViewMedicineScreen(),
+        '/check-interaction': (context) => const PlaceholderScreen(title: 'Check Interaction'),
+        '/reminder':       (context) => const PlaceholderScreen(title: 'Medicine Reminder'),
       },
     );
   }

@@ -13,6 +13,7 @@ exports.signup = async (req, res) => {
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
+      console.log(`[Signup Failed] User already exists: ${email}`);
       return res.status(400).json({ message: "User already exists" });
     }
 
@@ -28,8 +29,15 @@ exports.signup = async (req, res) => {
 
     await newUser.save();
 
+    const token = jwt.sign(
+      { userId: newUser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
     res.status(201).json({
-      message: "User registered successfully"
+      message: "User registered successfully",
+      token
     });
 
   } catch (error) {
@@ -54,12 +62,14 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
+      console.log(`[Login Failed] User not found: ${email}`);
       return res.status(400).json({ message: "User not found" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
+      console.log(`[Login Failed] Invalid password for: ${email}`);
       return res.status(400).json({ message: "Invalid password" });
     }
 
