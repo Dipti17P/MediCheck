@@ -6,7 +6,7 @@ class ApiService {
   // Use 10.0.2.2 for Android emulator to access localhost.
   // If you are using an iOS simulator, change this to 127.0.0.1 or localhost.
   // If you are testing on a physical device, use your computer's local IP address.
-  static const String baseUrl = 'http://10.133.168.235:5000/api';
+  static const String baseUrl = 'http://localhost:5000/api';
 
   /// Stores the JWT token in shared preferences
   static Future<void> _storeToken(String token) async {
@@ -172,4 +172,215 @@ class ApiService {
       throw Exception('Network error or server unavailable: $e');
     }
   }
+
+  static Future<List<Map<String, dynamic>>> checkInteractions(List<String> medicines) async {
+    final url = Uri.parse('$baseUrl/check-interaction');
+    final token = await getToken();
+
+    if (token == null) {
+      throw Exception('Not authenticated. Please log in again.');
+    }
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'medicines': medicines}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return List<Map<String, dynamic>>.from(data['interactions']);
+      } else if (response.statusCode == 404) {
+        throw Exception('One or more medicines not recognised by RxNorm.');
+      } else {
+        final data = jsonDecode(response.body);
+        throw Exception(data['error'] ?? 'Interaction check failed.');
+      }
+    } catch (e) {
+      throw Exception('Network error or server unavailable: $e');
+    }
+  }
+  /// Add Reminder API
+  ///
+  /// Endpoint: POST /add-reminder
+  static Future<Map<String, dynamic>> addReminder({
+    required String medicineName,
+    required String time,
+    String frequency = 'daily',
+  }) async {
+    final url = Uri.parse('$baseUrl/add-reminder');
+    final token = await getToken();
+
+    if (token == null) {
+      throw Exception('Not authenticated. Please log in again.');
+    }
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'medicineName': medicineName,
+          'time': time,
+          'frequency': frequency,
+        }),
+      );
+
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return responseData;
+      } else {
+        throw Exception(responseData['message'] ?? 'Failed to add reminder');
+      }
+    } catch (e) {
+      throw Exception('Network error or server unavailable: $e');
+    }
+  }
+
+  /// Update Reminder Status API
+  ///
+  /// Endpoint: PUT /update-reminder/:id
+  static Future<Map<String, dynamic>> updateReminderStatus(String id, bool isTaken) async {
+    final url = Uri.parse('$baseUrl/update-reminder/$id');
+    final token = await getToken();
+
+    if (token == null) {
+      throw Exception('Not authenticated. Please log in again.');
+    }
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'isTaken': isTaken,
+        }),
+      );
+
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        return responseData;
+      } else {
+        throw Exception(responseData['message'] ?? 'Failed to update reminder');
+      }
+    } catch (e) {
+      throw Exception('Network error or server unavailable: $e');
+    }
+  }
+
+  /// Get Reminders API
+  ///
+  /// Endpoint: GET /reminders
+  static Future<List<dynamic>> getReminders() async {
+    final url = Uri.parse('$baseUrl/reminders');
+    final token = await getToken();
+
+    if (token == null) {
+      throw Exception('Not authenticated. Please log in again.');
+    }
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        return responseData;
+      } else {
+        throw Exception(responseData['message'] ?? 'Failed to fetch reminders');
+      }
+    } catch (e) {
+      throw Exception('Network error or server unavailable: $e');
+    }
+  }
+
+  /// Get Profile API
+  ///
+  /// Endpoint: GET /profile
+  static Future<Map<String, dynamic>> getProfile() async {
+    final url = Uri.parse('$baseUrl/profile');
+    final token = await getToken();
+
+    if (token == null) {
+      throw Exception('Not authenticated.');
+    }
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        return responseData;
+      } else {
+        throw Exception(responseData['message'] ?? 'Failed to load profile');
+      }
+    } catch (e) {
+      throw Exception('Network error or server unavailable: $e');
+    }
+  }
+
+  /// Update Profile API
+  ///
+  /// Endpoint: PUT /profile
+  static Future<Map<String, dynamic>> updateProfile({
+    List<String>? allergies,
+    String? medicalHistory,
+  }) async {
+    final url = Uri.parse('$baseUrl/profile');
+    final token = await getToken();
+
+    if (token == null) {
+      throw Exception('Not authenticated.');
+    }
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          if (allergies != null) 'allergies': allergies,
+          if (medicalHistory != null) 'medicalHistory': medicalHistory,
+        }),
+      );
+
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        return responseData;
+      } else {
+        throw Exception(responseData['message'] ?? 'Failed to update profile');
+      }
+    } catch (e) {
+      throw Exception('Network error or server unavailable: $e');
+    }
+  }
 }
+

@@ -4,6 +4,9 @@ import 'screens/signup_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/add_medicine_screen.dart';
 import 'screens/view_medicine_screen.dart';
+import 'screens/interaction_screen.dart';
+import 'screens/reminder_screen.dart';
+import 'screens/splash_screen.dart';
 
 void main() {
   runApp(const MediCheckApp());
@@ -45,16 +48,17 @@ class MediCheckApp extends StatelessWidget {
         ),
       ),
       // Define the initial route
-      initialRoute: '/login',
+      initialRoute: '/',
       // Define all the routes for the application
       routes: {
+        '/':               (context) => const SplashScreen(),
         '/login':          (context) => const LoginScreen(),
         '/signup':         (context) => const SignupScreen(),
         '/home':           (context) => const DashboardScreen(),
         '/add-medicine':   (context) => const AddMedicineScreen(),
         '/view-medicines': (context) => const ViewMedicineScreen(),
-        '/check-interaction': (context) => const PlaceholderScreen(title: 'Check Interaction'),
-        '/reminder':       (context) => const PlaceholderScreen(title: 'Medicine Reminder'),
+        '/check-interaction': (context) => const InteractionScreen(),
+        '/reminder':       (context) => const ReminderScreen(),
       },
     );
   }

@@ -11,8 +11,8 @@ class AddMedicineScreen extends StatefulWidget {
 class _AddMedicineScreenState extends State<AddMedicineScreen>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _nameController       = TextEditingController();
-  final _usesController       = TextEditingController();
+  final _nameController = TextEditingController();
+  final _usesController = TextEditingController();
   final _sideEffectsController = TextEditingController();
 
   bool _isLoading = false;
@@ -24,9 +24,45 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
   late Animation<Offset> _slideAnim;
 
   // ── Colors ─────────────────────────────────────────────────────────────────
-  static const Color _primary      = Color(0xFF1565C0);
+  static const Color _primary = Color(0xFF1565C0);
   static const Color _primaryLight = Color(0xFF1E88E5);
-  static const Color _bg           = Color(0xFFF0F6FF);
+  static const Color _bg = Color(0xFFF0F6FF);
+
+  // ── Mock Database for Smart Auto-Fill ──────────────────────────────────────
+  static const Map<String, Map<String, String>> _medicineDb = {
+    'Paracetamol 500mg': {
+      'uses': 'Relieves mild to moderate pain and fever.',
+      'sideEffects': 'Rarely allergic reactions, liver damage in high doses.',
+    },
+    'Ibuprofen 400mg': {
+      'uses': 'Reduces inflammation, pain, and fever.',
+      'sideEffects': 'Stomach upset, heartburn, increased risk of bleeding.',
+    },
+    'Amoxicillin 500mg': {
+      'uses': 'Treats bacterial infections.',
+      'sideEffects': 'Nausea, vomiting, diarrhea, rash.',
+    },
+    'Aspirin 81mg': {
+      'uses': 'Pain relief, fever reduction, blood thinner.',
+      'sideEffects': 'Stomach pain, heartburn, easily bleeding.',
+    },
+    'Lisinopril 10mg': {
+      'uses': 'Treats high blood pressure and heart failure.',
+      'sideEffects': 'Dry cough, dizziness, headache.',
+    },
+    'Metformin 500mg': {
+      'uses': 'Controls high blood sugar in type 2 diabetes.',
+      'sideEffects': 'Nausea, stomach pain, diarrhea.',
+    },
+    'Omeprazole 20mg': {
+      'uses': 'Treats GERD and stomach ulcers.',
+      'sideEffects': 'Headache, stomach pain, nausea.',
+    },
+    'Atorvastatin 20mg': {
+      'uses': 'Lowers high cholesterol and triglyceride levels.',
+      'sideEffects': 'Muscle pain, liver problems, diarrhea.',
+    },
+  };
 
   @override
   void initState() {
@@ -35,13 +71,11 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
       vsync: this,
       duration: const Duration(milliseconds: 700),
     );
-    _fadeAnim = CurvedAnimation(
-        parent: _animController, curve: Curves.easeIn);
+    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeIn);
     _slideAnim = Tween<Offset>(
       begin: const Offset(0, 0.15),
       end: Offset.zero,
-    ).animate(
-        CurvedAnimation(parent: _animController, curve: Curves.easeOut));
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _animController.forward();
   }
 
@@ -52,6 +86,27 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
     _usesController.dispose();
     _sideEffectsController.dispose();
     super.dispose();
+  }
+
+  void _onMedicineSelected(String name) {
+    _nameController.text = name;
+    final data = _medicineDb[name];
+    if (data != null) {
+      setState(() {
+        _usesController.text = data['uses']!;
+        _sideEffectsController.text = data['sideEffects']!;
+        _successMessage = 'Medicine details auto-filled!';
+        _errorMessage = null;
+      });
+      // Clear success message after 3 seconds
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() {
+            _successMessage = null;
+          });
+        }
+      });
+    }
   }
 
   // ── Submit ──────────────────────────────────────────────────────────────────
@@ -75,7 +130,6 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
       setState(() {
         _successMessage = 'Medicine added successfully!';
       });
-      // Clear form after success
       _formKey.currentState!.reset();
       _nameController.clear();
       _usesController.clear();
@@ -160,7 +214,7 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
                 ),
               ),
               Text(
-                'Register a new medicine to your list',
+                'Smart auto-fill available',
                 style: TextStyle(
                   fontSize: 13,
                   color: Colors.white.withAlpha(204),
@@ -176,7 +230,7 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
               borderRadius: BorderRadius.circular(14),
             ),
             child: const Icon(
-              Icons.medication_rounded,
+              Icons.auto_awesome,
               color: Colors.white,
               size: 28,
             ),
@@ -217,7 +271,7 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
                       color: _primaryLight.withAlpha(20),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.add_circle_outline_rounded,
+                    child: const Icon(Icons.medication_rounded,
                         color: _primaryLight, size: 22),
                   ),
                   const SizedBox(width: 14),
@@ -233,7 +287,7 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
                         ),
                       ),
                       Text(
-                        'Fill in all fields accurately',
+                        'Search to auto-fill or enter manually',
                         style: TextStyle(
                             fontSize: 12, color: Color(0xFF7B8794)),
                       ),
@@ -243,29 +297,15 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
               ),
               const SizedBox(height: 28),
 
-              // Medicine Name
-              _buildField(
-                controller: _nameController,
-                label: 'Medicine Name',
-                hint: 'e.g. Paracetamol 500mg',
-                icon: Icons.medication_outlined,
-                validator: (v) {
-                  if (v == null || v.trim().isEmpty) {
-                    return 'Medicine name is required';
-                  }
-                  if (v.trim().length < 2) {
-                    return 'Enter at least 2 characters';
-                  }
-                  return null;
-                },
-              ),
+              // Medicine Autocomplete
+              _buildAutocompleteField(),
               const SizedBox(height: 20),
 
               // Uses (multi-line)
               _buildField(
                 controller: _usesController,
                 label: 'Uses',
-                hint: 'e.g. Used to relieve fever, headache, and mild pain...',
+                hint: 'e.g. Used to relieve fever, headache...',
                 icon: Icons.healing_outlined,
                 maxLines: 3,
                 validator: (v) {
@@ -281,7 +321,7 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
               _buildField(
                 controller: _sideEffectsController,
                 label: 'Side Effects',
-                hint: 'e.g. Nausea, dizziness, allergic reactions...',
+                hint: 'e.g. Nausea, dizziness...',
                 icon: Icons.warning_amber_outlined,
                 maxLines: 3,
                 validator: (v) {
@@ -319,38 +359,117 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
 
               // Submit button
               _buildSubmitButton(),
-
-              const SizedBox(height: 16),
-
-              // Info note
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0F6FF),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFCCDEF5)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.lock_outline,
-                        color: _primaryLight, size: 16),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'Your medicine data is securely stored and protected with JWT authentication.',
-                        style: TextStyle(
-                          color: _primary.withAlpha(190),
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  // ── Autocomplete Field ──────────────────────────────────────────────────────
+  Widget _buildAutocompleteField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Medicine Name',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF3D4F5C),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Autocomplete<String>(
+          optionsBuilder: (TextEditingValue textEditingValue) {
+            if (textEditingValue.text.isEmpty) {
+              return const Iterable<String>.empty();
+            }
+            return _medicineDb.keys.where((String option) {
+              return option
+                  .toLowerCase()
+                  .contains(textEditingValue.text.toLowerCase());
+            });
+          },
+          onSelected: (String selection) {
+            _onMedicineSelected(selection);
+          },
+          fieldViewBuilder: (BuildContext context,
+              TextEditingController fieldTextEditingController,
+              FocusNode fieldFocusNode,
+              VoidCallback onFieldSubmitted) {
+            
+            // Sync controllers
+            fieldTextEditingController.addListener(() {
+              _nameController.text = fieldTextEditingController.text;
+            });
+            // Update autocomplete when name is set from code
+            _nameController.addListener(() {
+              if (fieldTextEditingController.text != _nameController.text) {
+                fieldTextEditingController.text = _nameController.text;
+              }
+            });
+
+            return TextFormField(
+              controller: fieldTextEditingController,
+              focusNode: fieldFocusNode,
+              validator: (v) {
+                if (v == null || v.trim().isEmpty) return 'Required';
+                return null;
+              },
+              style: const TextStyle(fontSize: 15, color: Color(0xFF0D1B2A)),
+              decoration: InputDecoration(
+                hintText: 'Start typing to search...',
+                hintStyle:
+                    const TextStyle(color: Color(0xFFBCC4CC), fontSize: 13),
+                prefixIcon: const Icon(Icons.search, color: _primaryLight, size: 20),
+                filled: true,
+                fillColor: const Color(0xFFF5F8FC),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: Color(0xFFDDE3EA)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: Color(0xFFDDE3EA)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: _primaryLight, width: 1.8),
+                ),
+              ),
+            );
+          },
+          optionsViewBuilder: (context, onSelected, options) {
+            return Align(
+              alignment: Alignment.topLeft,
+              child: Material(
+                elevation: 4,
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width - 96,
+                  height: 200,
+                  child: ListView.builder(
+                    padding: EdgeInsets.zero,
+                    itemCount: options.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final option = options.elementAt(index);
+                      return ListTile(
+                        leading: const Icon(Icons.medication, color: _primaryLight),
+                        title: Text(option),
+                        onTap: () {
+                          onSelected(option);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -417,11 +536,6 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
               borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(color: Color(0xFFE53935)),
             ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide:
-                  const BorderSide(color: Color(0xFFE53935), width: 1.8),
-            ),
           ),
         ),
       ],
@@ -443,7 +557,7 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
               )
             : const Icon(Icons.add_circle_outline_rounded, size: 20),
         label: Text(
-          _isLoading ? 'Adding...' : 'Add Medicine',
+          _isLoading ? 'Saving...' : 'Save Medicine',
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,

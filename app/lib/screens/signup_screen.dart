@@ -74,17 +74,8 @@ class _SignupScreenState extends State<SignupScreen>
       );
       if (!mounted) return;
       // Show success snackbar and navigate back to login
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Account created successfully! Please sign in.'),
-          backgroundColor: Color(0xFF2E7D32),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12)),
-          ),
-        ),
-      );
-      Navigator.pushReplacementNamed(context, '/login');
+      // Navigate to home directly since signup returns a token and logs the user in
+      Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
       setState(() {
         _errorMessage = e.toString().replaceFirst('Exception: ', '');

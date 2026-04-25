@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import 'view_medicine_screen.dart';
+import 'reminder_screen.dart';
+import 'interaction_screen.dart';
+import 'profile_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -8,14 +12,89 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen>
-    with SingleTickerProviderStateMixin {
-  // ── Color palette ──────────────────────────────────────────────────────────
-  static const Color _primary    = Color(0xFF1565C0);
+class _DashboardScreenState extends State<DashboardScreen> {
+  int _selectedIndex = 0;
+
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      const _DashboardHome(),
+      const ViewMedicineScreen(),
+      const InteractionScreen(),
+      const ReminderScreen(),
+      const ProfileScreen(),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.white,
+        selectedItemColor: const Color(0xFF1565C0),
+        unselectedItemColor: Colors.grey.shade400,
+        showUnselectedLabels: true,
+        elevation: 10,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_rounded),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.medication_rounded),
+            label: 'Medicines',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.warning_amber_rounded),
+            label: 'Interactions',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.alarm_rounded),
+            label: 'Reminders',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_rounded),
+            label: 'Profile',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DashboardHome extends StatefulWidget {
+  const _DashboardHome();
+
+  @override
+  State<_DashboardHome> createState() => _DashboardHomeState();
+}
+
+class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProviderStateMixin {
+  // Color palette
+  static const Color _primary = Color(0xFF1565C0);
   static const Color _primaryLight = Color(0xFF1E88E5);
-  static const Color _bg         = Color(0xFFF0F6FF);
+  static const Color _bg = Color(0xFFF0F6FF);
 
   late AnimationController _animController;
+
+  // Data summaries
+  int _medicineCount = 0;
+  int _reminderCount = 0;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -24,6 +103,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       vsync: this,
       duration: const Duration(milliseconds: 900),
     )..forward();
+    _fetchSummaryData();
   }
 
   @override
@@ -32,61 +112,30 @@ class _DashboardScreenState extends State<DashboardScreen>
     super.dispose();
   }
 
+  Future<void> _fetchSummaryData() async {
+    setState(() => _isLoading = true);
+    try {
+      final meds = await ApiService.getMedicines();
+      final rems = await ApiService.getReminders();
+      if (mounted) {
+        setState(() {
+          _medicineCount = meds.length;
+          _reminderCount = rems.length;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching summary: $e');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   Future<void> _logout() async {
     await ApiService.logout();
     if (!mounted) return;
     Navigator.pushReplacementNamed(context, '/login');
   }
 
-  // ── Feature card data ──────────────────────────────────────────────────────
-  List<_FeatureCard> get _cards => [
-    _FeatureCard(
-      icon: Icons.add_circle_outline_rounded,
-      label: 'Add Medicine',
-      subtitle: 'Register a new medicine',
-      gradient: const LinearGradient(
-        colors: [Color(0xFF1565C0), Color(0xFF1E88E5)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      onTap: () => Navigator.pushNamed(context, '/add-medicine'),
-    ),
-    _FeatureCard(
-      icon: Icons.medication_rounded,
-      label: 'View Medicines',
-      subtitle: 'Browse your medicine list',
-      gradient: const LinearGradient(
-        colors: [Color(0xFF00897B), Color(0xFF26A69A)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      onTap: () => Navigator.pushNamed(context, '/view-medicines'),
-    ),
-    _FeatureCard(
-      icon: Icons.warning_amber_rounded,
-      label: 'Check Interaction',
-      subtitle: 'Detect drug conflicts',
-      gradient: const LinearGradient(
-        colors: [Color(0xFFE65100), Color(0xFFFF7043)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      onTap: () => Navigator.pushNamed(context, '/check-interaction'),
-    ),
-    _FeatureCard(
-      icon: Icons.alarm_rounded,
-      label: 'Medicine Reminder',
-      subtitle: 'Never miss a dose',
-      gradient: const LinearGradient(
-        colors: [Color(0xFF6A1B9A), Color(0xFFAB47BC)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      onTap: () => Navigator.pushNamed(context, '/reminder'),
-    ),
-  ];
-
-  // ── Build ──────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,22 +145,38 @@ class _DashboardScreenState extends State<DashboardScreen>
           children: [
             _buildTopBar(),
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildWelcomeBanner(),
-                    const SizedBox(height: 28),
-                    _buildSectionTitle('Quick Actions'),
-                    const SizedBox(height: 14),
-                    _buildCardGrid(),
-                    const SizedBox(height: 28),
-                    _buildSectionTitle('Recent Activity'),
-                    const SizedBox(height: 14),
-                    _buildRecentActivity(),
-                  ],
+              child: RefreshIndicator(
+                onRefresh: _fetchSummaryData,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildWelcomeBanner(),
+                      const SizedBox(height: 24),
+                      _buildSectionTitle('Overview'),
+                      const SizedBox(height: 12),
+                      _buildSummaryCards(),
+                      const SizedBox(height: 28),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildSectionTitle('Quick Actions'),
+                          TextButton(
+                            onPressed: () => Navigator.pushNamed(context, '/add-medicine').then((_) => _fetchSummaryData()),
+                            child: const Text('+ Add New', style: TextStyle(fontWeight: FontWeight.bold)),
+                          )
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      _buildQuickActions(),
+                      const SizedBox(height: 28),
+                      _buildSectionTitle('Upcoming Reminders'),
+                      const SizedBox(height: 14),
+                      _buildRecentActivity(),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -121,29 +186,27 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  // ── Top bar ────────────────────────────────────────────────────────────────
   Widget _buildTopBar() {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 12, 16),
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [_primary, _primaryLight],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))
+        ]
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withAlpha(30),
+              color: _primary.withAlpha(20),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(
               Icons.medical_services_rounded,
-              color: Colors.white,
-              size: 22,
+              color: _primary,
+              size: 24,
             ),
           ),
           const SizedBox(width: 12),
@@ -152,14 +215,14 @@ class _DashboardScreenState extends State<DashboardScreen>
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w800,
-              color: Colors.white,
+              color: _primary,
               letterSpacing: 0.4,
             ),
           ),
           const Spacer(),
           IconButton(
             onPressed: _logout,
-            icon: const Icon(Icons.logout_rounded, color: Colors.white),
+            icon: const Icon(Icons.logout_rounded, color: _primary),
             tooltip: 'Logout',
           ),
         ],
@@ -167,7 +230,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  // ── Welcome banner ─────────────────────────────────────────────────────────
   Widget _buildWelcomeBanner() {
     return SlideTransition(
       position: Tween<Offset>(
@@ -182,7 +244,7 @@ class _DashboardScreenState extends State<DashboardScreen>
           margin: const EdgeInsets.only(top: 16),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF1565C0), Color(0xFF1E88E5)],
+              colors: [_primary, _primaryLight],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -204,42 +266,24 @@ class _DashboardScreenState extends State<DashboardScreen>
                     Text(
                       'Welcome back! 👋',
                       style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.white.withAlpha(210),
+                        fontSize: 14,
+                        color: Colors.white.withAlpha(220),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     const Text(
-                      'Stay safe with\nMediCheck AI',
+                      'Your Health\nDashboard',
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: 24,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
-                        height: 1.3,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 7),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(35),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Text(
-                        '🛡️  Your health, protected',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        height: 1.2,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 16),
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
@@ -247,7 +291,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
-                  Icons.health_and_safety_rounded,
+                  Icons.favorite_rounded,
                   size: 48,
                   color: Colors.white,
                 ),
@@ -259,101 +303,149 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  // ── Section title ──────────────────────────────────────────────────────────
+  Widget _buildSummaryCards() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildSummaryCard(
+            title: 'Active Medicines',
+            count: _medicineCount.toString(),
+            icon: Icons.medication,
+            color: const Color(0xFF00897B),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: _buildSummaryCard(
+            title: 'Reminders Set',
+            count: _reminderCount.toString(),
+            icon: Icons.alarm,
+            color: const Color(0xFFE65100),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSummaryCard({
+    required String title,
+    required String count,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(10),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withAlpha(20),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
+          const SizedBox(height: 12),
+          _isLoading
+              ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(strokeWidth: 2))
+              : Text(
+                  count,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0D1B2A),
+                  ),
+                ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 13,
+              color: Color(0xFF7B8794),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
       style: const TextStyle(
-        fontSize: 17,
-        fontWeight: FontWeight.w700,
+        fontSize: 18,
+        fontWeight: FontWeight.w800,
         color: Color(0xFF0D1B2A),
         letterSpacing: 0.2,
       ),
     );
   }
 
-  // ── 2x2 card grid ─────────────────────────────────────────────────────────
-  Widget _buildCardGrid() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 14,
-        mainAxisSpacing: 14,
-        childAspectRatio: 1.05,
-      ),
-      itemCount: _cards.length,
-      itemBuilder: (context, index) {
-        // Staggered entrance animation
-        final delay = index * 0.12;
-        final animation = CurvedAnimation(
-          parent: _animController,
-          curve: Interval(delay, 1.0, curve: Curves.easeOut),
-        );
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(0, 0.3),
-            end: Offset.zero,
-          ).animate(animation),
-          child: FadeTransition(
-            opacity: animation,
-            child: _buildFeatureCard(_cards[index]),
+  Widget _buildQuickActions() {
+    return Row(
+      children: [
+        Expanded(
+          child: _buildActionBtn(
+            icon: Icons.add_circle_outline,
+            label: 'Add Medicine',
+            onTap: () => Navigator.pushNamed(context, '/add-medicine').then((_) => _fetchSummaryData()),
           ),
-        );
-      },
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildActionBtn(
+            icon: Icons.warning_amber_rounded,
+            label: 'Check Conflicts',
+            onTap: () {
+               // Assuming the parent DashboardScreen state can be accessed to change tabs
+               // But to keep it simple, we can just push the route or switch tab
+               Navigator.pushNamed(context, '/check-interaction');
+            },
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildFeatureCard(_FeatureCard card) {
-    return GestureDetector(
-      onTap: card.onTap,
+  Widget _buildActionBtn({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
       child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          gradient: card.gradient,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(30),
-              blurRadius: 12,
-              offset: const Offset(0, 5),
-            ),
-          ],
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: _primary.withAlpha(40)),
         ),
-        padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.white.withAlpha(35),
-                borderRadius: BorderRadius.circular(12),
+            Icon(icon, color: _primary, size: 28),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                color: _primary,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
               ),
-              child: Icon(card.icon, color: Colors.white, size: 26),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  card.label,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  card.subtitle,
-                  style: TextStyle(
-                    color: Colors.white.withAlpha(200),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
             ),
           ],
         ),
@@ -361,41 +453,9 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  // ── Recent activity placeholder ────────────────────────────────────────────
   Widget _buildRecentActivity() {
-    final items = [
-      _ActivityItem(
-        icon: Icons.check_circle_outline_rounded,
-        iconColor: const Color(0xFF00897B),
-        title: 'Interaction check passed',
-        subtitle: 'Paracetamol + Ibuprofen',
-        time: '2h ago',
-      ),
-      _ActivityItem(
-        icon: Icons.add_circle_outline_rounded,
-        iconColor: const Color(0xFF1E88E5),
-        title: 'Medicine added',
-        subtitle: 'Amoxicillin 500mg',
-        time: 'Yesterday',
-      ),
-      _ActivityItem(
-        icon: Icons.warning_amber_rounded,
-        iconColor: const Color(0xFFE65100),
-        title: 'Interaction warning',
-        subtitle: 'Warfarin + Aspirin',
-        time: '2 days ago',
-      ),
-    ];
-
-    return Column(
-      children: items.map((item) => _buildActivityTile(item)).toList(),
-    );
-  }
-
-  Widget _buildActivityTile(_ActivityItem item) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -410,76 +470,39 @@ class _DashboardScreenState extends State<DashboardScreen>
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: item.iconColor.withAlpha(20),
-              borderRadius: BorderRadius.circular(12),
+              color: const Color(0xFF1E88E5).withAlpha(20),
+              shape: BoxShape.circle,
             ),
-            child: Icon(item.icon, color: item.iconColor, size: 22),
+            child: const Icon(Icons.notifications_active_rounded, color: Color(0xFF1E88E5)),
           ),
-          const SizedBox(width: 14),
-          Expanded(
+          const SizedBox(width: 16),
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                  'Stay on track',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
                     color: Color(0xFF0D1B2A),
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 4),
                 Text(
-                  item.subtitle,
-                  style: const TextStyle(
-                    fontSize: 12,
+                  'Check your Reminders tab to see your schedule for today.',
+                  style: TextStyle(
+                    fontSize: 13,
                     color: Color(0xFF7B8794),
                   ),
                 ),
               ],
             ),
           ),
-          Text(
-            item.time,
-            style: const TextStyle(fontSize: 11, color: Color(0xFFBCC4CC)),
-          ),
         ],
       ),
     );
   }
-}
-
-// ── Helper data classes ────────────────────────────────────────────────────
-class _FeatureCard {
-  final IconData icon;
-  final String label;
-  final String subtitle;
-  final Gradient gradient;
-  final VoidCallback onTap;
-
-  const _FeatureCard({
-    required this.icon,
-    required this.label,
-    required this.subtitle,
-    required this.gradient,
-    required this.onTap,
-  });
-}
-
-class _ActivityItem {
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final String subtitle;
-  final String time;
-
-  const _ActivityItem({
-    required this.icon,
-    required this.iconColor,
-    required this.title,
-    required this.subtitle,
-    required this.time,
-  });
 }

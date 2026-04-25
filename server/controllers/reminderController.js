@@ -5,12 +5,12 @@ const Reminder = require("../models/Reminder");
 exports.addReminder = async (req, res) => {
 
   try {
-
-    const { medicineName, time } = req.body;
+    const { medicineName, time, frequency } = req.body;
 
     const reminder = new Reminder({
       medicineName,
       time,
+      frequency: frequency || 'daily',
       userId: req.user.userId
     });
 
@@ -45,11 +45,29 @@ exports.getReminders = async (req, res) => {
     res.json(reminders);
 
   } catch (error) {
-
     res.status(500).json({
       error: error.message
     });
-
   }
+};
 
+// UPDATE REMINDER STATUS
+exports.updateReminderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isTaken } = req.body;
+
+    const reminder = await Reminder.findOne({ _id: id, userId: req.user.userId });
+    
+    if (!reminder) {
+      return res.status(404).json({ message: "Reminder not found" });
+    }
+
+    reminder.isTaken = isTaken;
+    await reminder.save();
+
+    res.json({ message: "Reminder updated successfully", reminder });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };

@@ -12,6 +12,16 @@ const reminderSchema = new mongoose.Schema({
     required: true
   },
 
+  frequency: {
+    type: String,
+    default: 'daily'
+  },
+
+  isTaken: {
+    type: Boolean,
+    default: false
+  },
+
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"

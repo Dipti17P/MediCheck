@@ -19,7 +19,9 @@ const userSchema = new mongoose.Schema({
 
   age: Number,
 
-  allergies: [String]
+  allergies: [String],
+  
+  medicalHistory: String
 });
 
 module.exports = mongoose.model("User", userSchema);

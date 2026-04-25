@@ -12,6 +12,7 @@ const authRoutes = require("./routes/authRoutes");
 const medicineRoutes = require("./routes/medicineRoutes");
 const interactionRoutes = require("./routes/interactionRoutes");
 const reminderRoutes = require("./routes/reminderRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
@@ -48,6 +49,7 @@ app.use("/api", authRoutes);
 app.use("/api", medicineRoutes);
 app.use("/api", interactionRoutes);
 app.use("/api", reminderRoutes);
+app.use("/api", userRoutes);
 
 app.get("/", (req, res) => {
     res.send("MediCheck AI API is running...");
