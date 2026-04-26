@@ -12,6 +12,9 @@ const reminderSchema = new mongoose.Schema({
     required: true
   },
 
+  hour: Number,
+  minute: Number,
+
   frequency: {
     type: String,
     default: 'daily'

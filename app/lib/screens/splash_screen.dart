@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
+import '../services/token_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -19,11 +19,11 @@ class _SplashScreenState extends State<SplashScreen> {
     // Optional: Add a slight delay for a smooth splash screen experience
     await Future.delayed(const Duration(seconds: 1));
     
-    final token = await ApiService.getToken();
+    final bool loggedIn = await TokenService.isLoggedIn();
     
     if (!mounted) return;
 
-    if (token != null && token.isNotEmpty) {
+    if (loggedIn) {
       // Token exists, auto-login
       Navigator.pushReplacementNamed(context, '/home');
     } else {

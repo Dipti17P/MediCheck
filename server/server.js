@@ -13,6 +13,7 @@ const medicineRoutes = require("./routes/medicineRoutes");
 const interactionRoutes = require("./routes/interactionRoutes");
 const reminderRoutes = require("./routes/reminderRoutes");
 const userRoutes = require("./routes/userRoutes");
+require("./services/notificationService"); // Start notification cron job
 
 const app = express();
 

@@ -1,53 +1,45 @@
 const Reminder = require("../models/Reminder");
 
-
 // ADD REMINDER
 exports.addReminder = async (req, res) => {
-
   try {
-    const { medicineName, time, frequency } = req.body;
+    const { medicineName, time, hour, minute, frequency } = req.body;
 
     const reminder = new Reminder({
       medicineName,
       time,
+      hour,
+      minute,
       frequency: frequency || 'daily',
       userId: req.user.userId
     });
 
     await reminder.save();
-
-    res.json({
-      message: "Reminder added successfully",
-      reminder
-    });
+    res.json(reminder);
 
   } catch (error) {
-
-    res.status(500).json({
-      error: error.message
-    });
-
+    res.status(500).json({ error: error.message });
   }
-
 };
-
-
 
 // GET REMINDERS
 exports.getReminders = async (req, res) => {
-
   try {
-
-    const reminders = await Reminder.find({
-      userId: req.user.userId
-    });
-
+    const reminders = await Reminder.find({ userId: req.user.userId });
     res.json(reminders);
-
   } catch (error) {
-    res.status(500).json({
-      error: error.message
-    });
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// DELETE REMINDER
+exports.deleteReminder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Reminder.findOneAndDelete({ _id: id, userId: req.user.userId });
+    res.json({ message: "Reminder deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 

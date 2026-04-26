@@ -1,4 +1,4 @@
-const axios = require('axios');
+const { get } = require('axios');
 const NodeCache = require('node-cache');
 
 const cache = new NodeCache({ stdTTL: 3600 });
@@ -11,7 +11,7 @@ async function getDrugWarnings(rxcui, drugName) {
   if (cached) return cached;
 
   try {
-    const res = await axios.get(FDA_BASE, {
+    const res = await get(FDA_BASE, {
       params: {
         search: `openfda.rxcui:"${rxcui}"`,
         limit: 1,
@@ -25,7 +25,7 @@ async function getDrugWarnings(rxcui, drugName) {
   } catch (err) {
     if (err.response && err.response.status === 404 && drugName) {
       try {
-        const res2 = await axios.get(FDA_BASE, {
+        const res2 = await get(FDA_BASE, {
           params: {
             search: `openfda.substance_name:"${drugName}"`,
             limit: 1,
@@ -52,7 +52,7 @@ async function getDrugWarnings(rxcui, drugName) {
 
 function extractInteractions(labelData) {
   if (!labelData) return [];
-  
+
   const fieldsToCheck = [
     labelData.drug_interactions?.[0],
     labelData.warnings_and_cautions?.[0],

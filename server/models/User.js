@@ -21,7 +21,9 @@ const userSchema = new mongoose.Schema({
 
   allergies: [String],
   
-  medicalHistory: String
+  medicalHistory: String,
+  
+  fcmToken: String
 });
 
 module.exports = mongoose.model("User", userSchema);

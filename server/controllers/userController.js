@@ -38,3 +38,14 @@ exports.updateProfile = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// SAVE FCM TOKEN
+exports.updateFcmToken = async (req, res) => {
+  try {
+    const { fcmToken } = req.body;
+    await User.findByIdAndUpdate(req.user.userId, { fcmToken });
+    res.json({ message: "FCM Token updated" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

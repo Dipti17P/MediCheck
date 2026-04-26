@@ -19,7 +19,7 @@ class _InteractionScreenState extends State<InteractionScreen> {
   final List<String> _selectedMedicines = [];
 
   bool _isChecking = false;
-  List<Map<String, dynamic>>? _interactions;
+  Map<String, dynamic>? _interactionResult;
   String? _error;
 
   @override
@@ -52,7 +52,7 @@ class _InteractionScreenState extends State<InteractionScreen> {
     if (_selectedMedicines.length < 2) {
       setState(() {
         _error = 'Please select at least two medicines to check interactions.';
-        _interactions = null;
+        _interactionResult = null;
       });
       return;
     }
@@ -60,14 +60,14 @@ class _InteractionScreenState extends State<InteractionScreen> {
     setState(() {
       _isChecking = true;
       _error = null;
-      _interactions = null;
+      _interactionResult = null;
     });
 
     try {
       final response = await ApiService.checkInteractions(_selectedMedicines);
       if (mounted) {
         setState(() {
-          _interactions = response;
+          _interactionResult = response;
         });
       }
     } catch (e) {
@@ -89,7 +89,7 @@ class _InteractionScreenState extends State<InteractionScreen> {
         _selectedMedicines.add(name);
       }
       // Reset results when selection changes
-      _interactions = null;
+      _interactionResult = null;
       _error = null;
     });
   }
@@ -142,7 +142,7 @@ class _InteractionScreenState extends State<InteractionScreen> {
                   _buildCheckButton(),
                   const SizedBox(height: 24),
                   if (_error != null) _buildErrorBanner(),
-                  if (_interactions != null) _buildResultCard(),
+                  if (_interactionResult != null) _buildResultCard(),
                 ],
               ),
             ),
@@ -254,7 +254,12 @@ class _InteractionScreenState extends State<InteractionScreen> {
   }
 
   Widget _buildResultCard() {
-    if (_interactions == null || _interactions!.isEmpty) {
+    if (_interactionResult == null) return const SizedBox.shrink();
+
+    final overallRisk = _interactionResult!['overallRisk'] as String? ?? 'low';
+    final interactions = (_interactionResult!['interactions'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
+
+    if (interactions.isEmpty || overallRisk == 'low') {
       return Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
@@ -298,18 +303,35 @@ class _InteractionScreenState extends State<InteractionScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Interaction Results (OpenFDA)',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF0D1B2A),
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Interaction Results (OpenFDA)',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0D1B2A),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: _getRiskColor(overallRisk),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                'Overall: ${overallRisk.toUpperCase()}',
+                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
-        ..._interactions!.map((item) {
+        ...interactions.map((item) {
           final riskLevel = item['riskLevel']?.toString() ?? 'UNKNOWN';
-          final warnings = (item['warnings'] as List<dynamic>?)?.cast<String>() ?? [];
+          final warning = item['warning']?.toString() ?? '';
+          final coReportCount = item['coReportCount'] as int? ?? 0;
           
           return Card(
             elevation: 3,
@@ -364,7 +386,7 @@ class _InteractionScreenState extends State<InteractionScreen> {
                     ),
                   ],
 
-                  if (warnings.isNotEmpty) ...[
+                  if (warning.isNotEmpty && riskLevel.toLowerCase() != 'low') ...[
                     const SizedBox(height: 12),
                     const Text(
                       "Warnings:",
@@ -373,17 +395,15 @@ class _InteractionScreenState extends State<InteractionScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    ...warnings.map(
-                      (warning) => Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: Text("• ${warning.trim()}"),
-                      ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Text("• ${warning.trim()}"),
                     ),
                   ],
 
                   const SizedBox(height: 10),
                   Text(
-                    "Source: ${item['source'] ?? 'OpenFDA'}",
+                    "Source: OpenFDA (Co-reports: $coReportCount)",
                     style: const TextStyle(
                       color: Colors.grey,
                       fontSize: 12,
@@ -402,8 +422,10 @@ class _InteractionScreenState extends State<InteractionScreen> {
     switch (risk.toUpperCase()) {
       case 'HIGH':
         return Colors.red.shade700;
-      case 'MEDIUM':
+      case 'MODERATE':
         return Colors.orange.shade700;
+      case 'LOW-MODERATE':
+        return Colors.amber.shade600;
       case 'LOW':
         return Colors.green.shade700;
       default:

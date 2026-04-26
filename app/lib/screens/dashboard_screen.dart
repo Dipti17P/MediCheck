@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'view_medicine_screen.dart';
@@ -14,7 +16,6 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
-
   late final List<Widget> _pages;
 
   @override
@@ -27,6 +28,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
       const ReminderScreen(),
       const ProfileScreen(),
     ];
+    _initFcm();
+  }
+
+  Future<void> _initFcm() async {
+    if (kIsWeb) return;
+    try {
+      final messaging = FirebaseMessaging.instance;
+      // Request permission for iOS
+      await messaging.requestPermission();
+      final token = await messaging.getToken();
+      if (token != null) {
+        await ApiService.saveFcmToken(token);
+        debugPrint("FCM Token saved: $token");
+      }
+    } catch (e) {
+      debugPrint("Error initializing FCM: $e");
+    }
   }
 
   @override
@@ -133,7 +151,7 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
   Future<void> _logout() async {
     await ApiService.logout();
     if (!mounted) return;
-    Navigator.pushReplacementNamed(context, '/login');
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
   }
 
   @override
@@ -410,8 +428,6 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
             icon: Icons.warning_amber_rounded,
             label: 'Check Conflicts',
             onTap: () {
-               // Assuming the parent DashboardScreen state can be accessed to change tabs
-               // But to keep it simple, we can just push the route or switch tab
                Navigator.pushNamed(context, '/check-interaction');
             },
           ),

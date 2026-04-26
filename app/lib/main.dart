@@ -1,4 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'services/notification_service.dart';
+import 'services/token_service.dart';
+import 'services/api_service.dart';
+
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/dashboard_screen.dart';
@@ -8,7 +15,38 @@ import 'screens/interaction_screen.dart';
 import 'screens/reminder_screen.dart';
 import 'screens/splash_screen.dart';
 
-void main() {
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+void handleTokenExpiry() {
+  TokenService.clearAll();
+  navigatorKey.currentState?.pushAndRemoveUntil(
+    MaterialPageRoute(builder: (_) => const LoginScreen()),
+    (route) => false,
+  );
+}
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print("Handling a background message: ${message.messageId}");
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  try {
+    if (kIsWeb) {
+      print("Firebase initialization skipped on Web (requires options)");
+    } else {
+      await Firebase.initializeApp();
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    }
+  } catch (e) {
+    print("Firebase initialization error: $e");
+  }
+  
+  await NotificationService().init();
+  
   runApp(const MediCheckApp());
 }
 
@@ -19,14 +57,15 @@ class MediCheckApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'MediCheck AI',
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1E88E5), // Medical Blue
+          seedColor: const Color(0xFF1E88E5),
           brightness: Brightness.light,
         ),
         useMaterial3: true,
-        fontFamily: 'Inter', // Recommend using a clean font like Inter or Roboto
+        fontFamily: 'Inter',
         appBarTheme: const AppBarTheme(
           centerTitle: true,
           elevation: 0,
@@ -47,9 +86,7 @@ class MediCheckApp extends StatelessWidget {
           fillColor: Colors.grey.shade50,
         ),
       ),
-      // Define the initial route
       initialRoute: '/',
-      // Define all the routes for the application
       routes: {
         '/':               (context) => const SplashScreen(),
         '/login':          (context) => const LoginScreen(),
@@ -60,69 +97,6 @@ class MediCheckApp extends StatelessWidget {
         '/check-interaction': (context) => const InteractionScreen(),
         '/reminder':       (context) => const ReminderScreen(),
       },
-    );
-  }
-}
-
-/// A temporary placeholder screen to avoid compilation errors 
-/// before the actual screens are implemented.
-class PlaceholderScreen extends StatelessWidget {
-  final String title;
-
-  const PlaceholderScreen({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.medical_services_outlined,
-              size: 80,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Backend Base URL: http://10.0.2.2:5000/api',
-              style: TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 32),
-            if (title == 'Login Screen') ...[
-              ElevatedButton(
-                onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
-                child: const Text('Simulate Login (Go to Home)'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pushNamed(context, '/signup'),
-                child: const Text('Don\'t have an account? Sign up'),
-              ),
-            ] else if (title == 'Signup Screen') ...[
-              ElevatedButton(
-                onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
-                child: const Text('Simulate Signup (Go to Login)'),
-              ),
-            ] else if (title == 'Home Screen') ...[
-              ElevatedButton(
-                onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
-                child: const Text('Logout'),
-              ),
-            ]
-          ],
-        ),
-      ),
     );
   }
 }
