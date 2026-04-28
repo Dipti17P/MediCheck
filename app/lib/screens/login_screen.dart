@@ -127,19 +127,13 @@ class _LoginScreenState extends State<LoginScreen>
       padding: const EdgeInsets.fromLTRB(32, 52, 32, 48),
       child: Column(
         children: [
-          // App icon
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: Colors.white.withAlpha(30),
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withAlpha(80), width: 2),
-            ),
-            child: const Icon(
-              Icons.medical_services_rounded,
-              size: 42,
-              color: Colors.white,
+          // App logo
+          Hero(
+            tag: 'logo',
+            child: Image.asset(
+              'assets/logo.png',
+              height: 100,
+              fit: BoxFit.contain,
             ),
           ),
           const SizedBox(height: 20),
@@ -241,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen>
                 ),
                 validator: (v) {
                   if (v == null || v.isEmpty) return 'Password is required';
-                  if (v.length < 6) return 'Minimum 6 characters';
+                  if (v.length < 8) return 'Minimum 8 characters';
                   return null;
                 },
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/token_service.dart';
+import '../services/auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -24,8 +25,16 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     if (loggedIn) {
-      // Token exists, auto-login
-      Navigator.pushReplacementNamed(context, '/home');
+      // Token exists, check biometrics
+      final bool authenticated = await AuthService.authenticate();
+      if (!mounted) return;
+      
+      if (authenticated) {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        // If auth fails or cancelled, go to login for security
+        Navigator.pushReplacementNamed(context, '/login');
+      }
     } else {
       // No token, go to login
       Navigator.pushReplacementNamed(context, '/login');
@@ -40,23 +49,12 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(50),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.medical_services_rounded,
-                size: 80,
-                color: Color(0xFF1565C0),
+            Hero(
+              tag: 'logo',
+              child: Image.asset(
+                'assets/logo.png',
+                height: 150,
+                fit: BoxFit.contain,
               ),
             ),
             const SizedBox(height: 32),

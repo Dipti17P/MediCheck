@@ -1,25 +1,45 @@
 const axios = require('axios');
 const { createClient } = require('redis');
+const NodeCache = require('node-cache');
+const logger = require('../utils/logger');
 
-// Initialize Redis client
+// Initialize Redis client with limited retries to avoid log spam
 const redisClient = createClient({
-  url: process.env.REDIS_URL || 'redis://127.0.0.1:6379'
+  url: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
+  socket: {
+    reconnectStrategy: (retries) => {
+      if (retries > 5) {
+        // Stop retrying after 5 attempts to keep logs clean
+        logger.warn('Redis reconnection limit reached. Falling back to local cache permanently.');
+        return false; 
+      }
+      return Math.min(retries * 50, 1000); // Gradual backoff
+    }
+  }
 });
 
+// Initialize Local Cache as fallback
+const localCache = new NodeCache({ stdTTL: 86400 }); // 24 hours
+
 let isRedisConnected = false;
+let redisErrorLogged = false;
 
 redisClient.on('error', (err) => {
-  console.log('Redis Client Error:', err.message);
+  if (!redisErrorLogged) {
+    logger.error('Redis Client Error: %s. Ensuring graceful fallback.', err.message);
+    redisErrorLogged = true; // Only log once to avoid spamming
+  }
   isRedisConnected = false;
 });
 
 redisClient.on('connect', () => {
-  console.log('Redis Client Connected');
+  logger.info('Redis Client Connected');
   isRedisConnected = true;
+  redisErrorLogged = false;
 });
 
 redisClient.connect().catch((err) => {
-  console.log('Failed to connect to Redis:', err.message);
+  // Initial connection failure handled by 'error' event
 });
 
 // Brand to generic mapper
@@ -65,7 +85,12 @@ async function getDrugInteractionData(drugA, drugB) {
         return JSON.parse(cachedResult);
       }
     } catch (err) {
-      console.error('Redis get error:', err.message);
+      logger.error('Redis get error: %s', err.message);
+    }
+  } else {
+    const cachedResult = localCache.get(cacheKey);
+    if (cachedResult) {
+      return cachedResult;
     }
   }
 
@@ -74,15 +99,26 @@ async function getDrugInteractionData(drugA, drugB) {
   let coReportCount = 0;
 
   try {
-    // 1. Check drug labels for interactions
     const labelQuery = `(openfda.substance_name:"${drug1}" AND drug_interactions:"${drug2}") OR (openfda.substance_name:"${drug2}" AND drug_interactions:"${drug1}")`;
     const labelUrl = `https://api.fda.gov/drug/label.json?search=${encodeURIComponent(labelQuery)}&limit=1`;
     
-    const labelRes = await axios.get(labelUrl).catch(e => {
-       if (e.response && e.response.status === 404) return { data: null };
-       throw e;
-    });
+    const eventQuery = `patient.drug.medicinalproduct:"${drug1}" AND patient.drug.medicinalproduct:"${drug2}"`;
+    const eventUrl = `https://api.fda.gov/drug/event.json?search=${encodeURIComponent(eventQuery)}&limit=1`;
 
+    const [labelRes, eventRes] = await Promise.all([
+      axios.get(labelUrl).catch(e => {
+        if (e.response && e.response.status === 404) return { data: null };
+        logger.error('FDA Label API Error: %s', e.message);
+        return { data: null };
+      }),
+      axios.get(eventUrl).catch(e => {
+        if (e.response && e.response.status === 404) return { data: { meta: { results: { total: 0 } } } };
+        logger.error('FDA Event API Error: %s', e.message);
+        return { data: { meta: { results: { total: 0 } } } };
+      })
+    ]);
+
+    // Process Label Data
     if (labelRes.data && labelRes.data.results && labelRes.data.results.length > 0) {
       labelMention = true;
       const result = labelRes.data.results[0];
@@ -92,32 +128,18 @@ async function getDrugInteractionData(drugA, drugB) {
         const relevantSentences = sentences.filter(s => 
           s.toLowerCase().includes(drug1) || s.toLowerCase().includes(drug2)
         );
-        if (relevantSentences.length > 0) {
-          warning = relevantSentences.join(' ');
-        } else {
-          warning = text.substring(0, 200) + (text.length > 200 ? '...' : '');
-        }
+        warning = relevantSentences.length > 0 
+          ? relevantSentences.join(' ') 
+          : text.substring(0, 200) + (text.length > 200 ? '...' : '');
       }
     }
-  } catch (err) {
-    console.error('FDA Label API Error:', err.message);
-  }
 
-  try {
-    // 2. Check adverse event co-reports
-    const eventQuery = `patient.drug.medicinalproduct:"${drug1}" AND patient.drug.medicinalproduct:"${drug2}"`;
-    const eventUrl = `https://api.fda.gov/drug/event.json?search=${encodeURIComponent(eventQuery)}&limit=1`;
-    
-    const eventRes = await axios.get(eventUrl).catch(e => {
-       if (e.response && e.response.status === 404) return { data: { meta: { results: { total: 0 } } } };
-       throw e;
-    });
-
+    // Process Event Data
     if (eventRes.data && eventRes.data.meta && eventRes.data.meta.results) {
       coReportCount = eventRes.data.meta.results.total;
     }
   } catch (err) {
-    console.error('FDA Event API Error:', err.message);
+    logger.error('Unexpected error in drug interaction fetch: %s', err.message);
   }
 
   // Calculate risk level based on signals
@@ -150,8 +172,10 @@ async function getDrugInteractionData(drugA, drugB) {
       // Cache for 24 hours (86400 seconds)
       await redisClient.setEx(cacheKey, 86400, JSON.stringify(result));
     } catch (err) {
-      console.error('Redis set error:', err.message);
+      logger.error('Redis set error: %s', err.message);
     }
+  } else {
+    localCache.set(cacheKey, result);
   }
 
   return result;

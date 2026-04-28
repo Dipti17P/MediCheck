@@ -2,21 +2,21 @@ const admin = require('firebase-admin');
 const cron = require('node-cron');
 const Reminder = require('../models/Reminder');
 const User = require('../models/User');
+const logger = require('../utils/logger');
 
 // Initialize firebase-admin
 if (!admin.apps.length) {
     try {
-        // You should have FIREBASE_SERVICE_ACCOUNT env var or a file
         if (process.env.FIREBASE_SERVICE_ACCOUNT) {
             admin.initializeApp({
                 credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))
             });
-            console.log('Firebase Admin initialized');
+            logger.info('Firebase Admin initialized');
         } else {
-            console.warn('FIREBASE_SERVICE_ACCOUNT not found. Push notifications will not be sent.');
+            logger.warn('FIREBASE_SERVICE_ACCOUNT not found. Push notifications will not be sent.');
         }
     } catch (e) {
-        console.error('Firebase Admin init error:', e.message);
+        logger.error('Firebase Admin init error: %s', e.message);
     }
 }
 
@@ -36,20 +36,20 @@ const sendMedicineReminder = async (fcmToken, medicineName) => {
 
     try {
         await admin.messaging().send(message);
-        console.log(`Notification sent for ${medicineName}`);
+        logger.info(`Notification sent for ${medicineName}`);
     } catch (error) {
-        console.error('Error sending FCM:', error.message);
+        logger.error('Error sending FCM: %s', error.message);
     }
 };
 
 // Cron job to check every minute
 cron.schedule('* * * * *', async () => {
     const now = new Date();
-    // Offset for local time if needed, assuming UTC for server
+    // Note: The logic below uses system time. Ensure server time matches user expectation or handle timezones.
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
 
-    console.log(`Checking reminders for ${currentHour}:${currentMinute}`);
+    logger.debug(`Checking reminders for ${currentHour}:${currentMinute}`);
 
     try {
         const activeReminders = await Reminder.find({
@@ -63,7 +63,7 @@ cron.schedule('* * * * *', async () => {
             }
         }
     } catch (err) {
-        console.error('Cron job error:', err.message);
+        logger.error('Cron job error: %o', err);
     }
 });
 

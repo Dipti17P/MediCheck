@@ -1,7 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../services/report_service.dart';
+import '../services/cache_service.dart';
 import 'view_medicine_screen.dart';
 import 'reminder_screen.dart';
 import 'interaction_screen.dart';
@@ -149,6 +152,9 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
   }
 
   Future<void> _logout() async {
+    if (!kIsWeb) {
+      await FirebaseAnalytics.instance.logEvent(name: 'user_logout');
+    }
     await ApiService.logout();
     if (!mounted) return;
     Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
@@ -176,6 +182,8 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
                       _buildSectionTitle('Overview'),
                       const SizedBox(height: 12),
                       _buildSummaryCards(),
+                      const SizedBox(height: 16),
+                      _buildAdherenceStreak(),
                       const SizedBox(height: 28),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -189,6 +197,8 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
                       ),
                       const SizedBox(height: 10),
                       _buildQuickActions(),
+                      const SizedBox(height: 12),
+                      _buildAIRow(),
                       const SizedBox(height: 28),
                       _buildSectionTitle('Upcoming Reminders'),
                       const SizedBox(height: 14),
@@ -238,6 +248,17 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
             ),
           ),
           const Spacer(),
+          IconButton(
+            onPressed: () async {
+              if (!kIsWeb) {
+                await FirebaseAnalytics.instance.logEvent(name: 'export_pdf_report');
+              }
+              final meds = await ApiService.getMedicines();
+              await ReportService.generateAndPrintMedicineReport(meds);
+            },
+            icon: const Icon(Icons.picture_as_pdf_rounded, color: _primary),
+            tooltip: 'Export PDF',
+          ),
           IconButton(
             onPressed: _logout,
             icon: const Icon(Icons.logout_rounded, color: _primary),
@@ -345,6 +366,39 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
     );
   }
 
+  Widget _buildAdherenceStreak() {
+    // Mock streak for now
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.orange.shade400, Colors.orange.shade700],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(color: Colors.orange.withAlpha(50), blurRadius: 15, offset: const Offset(0, 5)),
+        ],
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.local_fire_department_rounded, color: Colors.white, size: 40),
+          SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Adherence Streak', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
+              Text('5 Days', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          Spacer(),
+          Icon(Icons.arrow_forward_ios, color: Colors.white54, size: 16),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSummaryCard({
     required String title,
     required String count,
@@ -427,12 +481,18 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
           child: _buildActionBtn(
             icon: Icons.warning_amber_rounded,
             label: 'Check Conflicts',
-            onTap: () {
-               Navigator.pushNamed(context, '/check-interaction');
-            },
+            onTap: () => Navigator.pushNamed(context, '/check-interaction'),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildAIRow() {
+    return _buildActionBtn(
+      icon: Icons.auto_awesome,
+      label: 'AI Symptom Checker',
+      onTap: () => Navigator.pushNamed(context, '/symptom-checker'),
     );
   }
 

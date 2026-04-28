@@ -1,51 +1,104 @@
 const User = require("../models/User");
+const Medicine = require("../models/Medicine");
+const Reminder = require("../models/Reminder");
+const logger = require("../utils/logger");
 
 // GET PROFILE
-exports.getProfile = async (req, res) => {
+exports.getProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.userId).select("-password");
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
-    res.json(user);
+    res.json({ success: true, user });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    logger.error("Error fetching profile: %o", error);
+    next(error);
   }
 };
 
 // UPDATE PROFILE
-exports.updateProfile = async (req, res) => {
+exports.updateProfile = async (req, res, next) => {
   try {
     const { allergies, medicalHistory } = req.body;
     
     const user = await User.findById(req.user.userId);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
     if (allergies !== undefined) user.allergies = allergies;
     if (medicalHistory !== undefined) user.medicalHistory = medicalHistory;
 
     await user.save();
+    logger.info(`Profile updated for user: ${req.user.userId}`);
 
-    res.json({ message: "Profile updated successfully", user: {
-      name: user.name,
-      email: user.email,
-      allergies: user.allergies,
-      medicalHistory: user.medicalHistory
-    }});
+    res.json({ 
+      success: true, 
+      message: "Profile updated successfully", 
+      user: {
+        name: user.name,
+        email: user.email,
+        allergies: user.allergies,
+        medicalHistory: user.medicalHistory
+      }
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    logger.error("Error updating profile: %o", error);
+    next(error);
   }
 };
 
 // SAVE FCM TOKEN
-exports.updateFcmToken = async (req, res) => {
+exports.updateFcmToken = async (req, res, next) => {
   try {
     const { fcmToken } = req.body;
     await User.findByIdAndUpdate(req.user.userId, { fcmToken });
-    res.json({ message: "FCM Token updated" });
+    logger.info(`FCM Token updated for user: ${req.user.userId}`);
+    res.json({ success: true, message: "FCM Token updated" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    logger.error("Error updating FCM token: %o", error);
+    next(error);
+  }
+};
+
+// EXPORT ALL USER DATA (GDPR)
+exports.exportData = async (req, res, next) => {
+  try {
+    const [user, medicines, reminders] = await Promise.all([
+      User.findById(req.user.userId).select("-password"),
+      Medicine.find({ userId: req.user.userId }),
+      Reminder.find({ userId: req.user.userId })
+    ]);
+
+    const dataDump = {
+      profile: user,
+      medicines,
+      reminders,
+      exportedAt: new Date().toISOString()
+    };
+
+    logger.info(`Data export generated for user: ${req.user.userId}`);
+    res.json({ success: true, data: dataDump });
+  } catch (error) {
+    logger.error("Error exporting data: %o", error);
+    next(error);
+  }
+};
+
+// DELETE ACCOUNT (GDPR)
+exports.deleteAccount = async (req, res, next) => {
+  try {
+    await Promise.all([
+      Medicine.deleteMany({ userId: req.user.userId }),
+      Reminder.deleteMany({ userId: req.user.userId }),
+      User.findByIdAndDelete(req.user.userId)
+    ]);
+
+    logger.info(`Account and all data deleted for user: ${req.user.userId}`);
+    res.json({ success: true, message: "Account and all associated data permanently deleted" });
+  } catch (error) {
+    logger.error("Error deleting account: %o", error);
+    next(error);
   }
 };

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../services/notification_service.dart';
+import '../services/cache_service.dart';
 
 class ReminderScreen extends StatefulWidget {
   const ReminderScreen({super.key});
@@ -164,9 +165,22 @@ class _ReminderScreenState extends State<ReminderScreen> {
                         leading: const CircleAvatar(backgroundColor: _primary, child: Icon(Icons.alarm, color: Colors.white)),
                         title: Text(r['medicineName'], style: const TextStyle(fontWeight: FontWeight.bold)),
                         subtitle: Text('At ${r['time']}'),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _deleteReminder(r),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.check_circle_outline, color: Colors.green),
+                              onPressed: () async {
+                                await CacheService.logAdherence(r['_id'], true);
+                                if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Marked as taken!')));
+                              },
+                              tooltip: 'Mark as Taken',
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deleteReminder(r),
+                            ),
+                          ],
                         ),
                       ),
                     );

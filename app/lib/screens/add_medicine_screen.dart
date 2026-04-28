@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import '../services/api_service.dart';
 
 class AddMedicineScreen extends StatefulWidget {
@@ -106,6 +107,36 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
           });
         }
       });
+    }
+  }
+
+  Future<void> _scanBarcode() async {
+    final result = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => SizedBox(
+        height: MediaQuery.of(context).size.height * 0.7,
+        child: MobileScanner(
+          onDetect: (capture) {
+            final List<Barcode> barcodes = capture.barcodes;
+            for (final barcode in barcodes) {
+              if (barcode.rawValue != null) {
+                Navigator.pop(context, barcode.rawValue);
+                break;
+              }
+            }
+          },
+        ),
+      ),
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _nameController.text = result;
+      });
+      if (_medicineDb.containsKey(result)) {
+        _onMedicineSelected(result);
+      }
     }
   }
 
@@ -437,6 +468,11 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: const BorderSide(color: _primaryLight, width: 1.8),
+                ),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.qr_code_scanner_rounded, color: _primaryLight),
+                  onPressed: _scanBarcode,
+                  tooltip: 'Scan Barcode',
                 ),
               ),
             );

@@ -2,9 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'services/notification_service.dart';
 import 'services/token_service.dart';
 import 'services/api_service.dart';
+import 'services/cache_service.dart';
 
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
@@ -14,6 +17,7 @@ import 'screens/view_medicine_screen.dart';
 import 'screens/interaction_screen.dart';
 import 'screens/reminder_screen.dart';
 import 'screens/splash_screen.dart';
+import 'screens/ai_symptom_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -32,22 +36,34 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  try {
-    if (kIsWeb) {
-      print("Firebase initialization skipped on Web (requires options)");
-    } else {
-      await Firebase.initializeApp();
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    }
-  } catch (e) {
-    print("Firebase initialization error: $e");
-  }
-  
-  await NotificationService().init();
-  
-  runApp(const MediCheckApp());
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = 'https://example@sentry.io/example';
+      options.tracesSampleRate = 1.0;
+    },
+    appRunner: () async {
+      WidgetsFlutterBinding.ensureInitialized();
+      
+      // Initialize Cache (Hive)
+      await CacheService.init();
+
+      // Wire Token Expiry Handler
+      ApiService.onTokenExpired = handleTokenExpiry;
+      
+      try {
+        if (!kIsWeb) {
+          await Firebase.initializeApp();
+          FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+        }
+      } catch (e) {
+        print("Firebase initialization error: $e");
+      }
+      
+      await NotificationService().init();
+      
+      runApp(const MediCheckApp());
+    },
+  );
 }
 
 class MediCheckApp extends StatelessWidget {
@@ -58,6 +74,10 @@ class MediCheckApp extends StatelessWidget {
     return MaterialApp(
       title: 'MediCheck AI',
       navigatorKey: navigatorKey,
+      navigatorObservers: [
+        if (!kIsWeb) FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+        SentryNavigatorObserver(),
+      ],
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -96,6 +116,7 @@ class MediCheckApp extends StatelessWidget {
         '/view-medicines': (context) => const ViewMedicineScreen(),
         '/check-interaction': (context) => const InteractionScreen(),
         '/reminder':       (context) => const ReminderScreen(),
+        '/symptom-checker': (context) => const AISymptomScreen(),
       },
     );
   }

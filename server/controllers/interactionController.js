@@ -1,13 +1,16 @@
 const { getDrugInteractionData } = require('../services/drugInteractionService');
+const logger = require('../utils/logger');
 
-async function checkInteraction(req, res) {
+async function checkInteraction(req, res, next) {
   const { medicines } = req.body; // ["Aspirin", "Ibuprofen"]
 
+  // Validation is now handled by middleware, but we can keep a safety check or remove it
   if (!medicines || !Array.isArray(medicines) || medicines.length < 2) {
-    return res.status(400).json({ error: 'Send at least 2 medicine names.' });
+    return res.status(400).json({ success: false, message: 'Send at least 2 medicine names.' });
   }
 
   try {
+    logger.info(`Checking interactions for: ${medicines.join(', ')}`);
     const interactions = [];
 
     // Check all drug pairs if more than 2 medicines are sent
@@ -32,11 +35,11 @@ async function checkInteraction(req, res) {
       overallRisk = 'low-moderate';
     }
 
-    return res.json({ overallRisk, interactions });
+    return res.json({ success: true, overallRisk, interactions });
 
   } catch (err) {
-    console.error('Interaction check error:', err.message);
-    return res.status(500).json({ error: 'Interaction check failed. Try again.' });
+    logger.error('Interaction check error: %o', err);
+    next(err);
   }
 }
 

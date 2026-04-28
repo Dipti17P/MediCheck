@@ -23,7 +23,9 @@ const userSchema = new mongoose.Schema({
   
   medicalHistory: String,
   
-  fcmToken: String
+  fcmToken: String,
+  
+  refreshToken: String
 });
 
 module.exports = mongoose.model("User", userSchema);

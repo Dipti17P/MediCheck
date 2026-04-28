@@ -148,18 +148,12 @@ class _SignupScreenState extends State<SignupScreen>
             ),
           ),
           const SizedBox(height: 20),
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              color: Colors.white.withAlpha(30),
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withAlpha(80), width: 2),
-            ),
-            child: const Icon(
-              Icons.person_add_alt_1_rounded,
-              size: 36,
-              color: Colors.white,
+          Hero(
+            tag: 'logo',
+            child: Image.asset(
+              'assets/logo.png',
+              height: 90,
+              fit: BoxFit.contain,
             ),
           ),
           const SizedBox(height: 16),
@@ -274,7 +268,7 @@ class _SignupScreenState extends State<SignupScreen>
                 ),
                 validator: (v) {
                   if (v == null || v.isEmpty) return 'Password is required';
-                  if (v.length < 6) return 'Minimum 6 characters';
+                  if (v.length < 8) return 'Minimum 8 characters';
                   return null;
                 },
               ),
@@ -485,7 +479,7 @@ class _SignupScreenState extends State<SignupScreen>
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Password must be at least 6 characters long.',
+              'Password must be at least 8 characters long and contain letters and numbers.',
               style: TextStyle(
                 color: _primary.withAlpha(190),
                 fontSize: 12,

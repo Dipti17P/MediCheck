@@ -1,16 +1,11 @@
-const express = require('express');
-const rateLimit = require('express-rate-limit');
-const { checkInteraction } = require('../controllers/interactionController');
-const authMiddleware = require('../middleware/authMiddleware');
-
+const express = require("express");
 const router = express.Router();
+const { checkInteraction } = require("../controllers/interactionController");
+const auth = require("../middleware/authMiddleware");
+const validate = require("../middleware/validate");
+const schemas = require("../validation/schemas");
 
-const limiter = rateLimit({
-  windowMs: 60 * 1000,  // 1 minute
-  max: 20,              // 20 requests per user per minute
-  message: { error: 'Too many requests. Please wait.' }
-});
-
-router.post('/check-interaction', authMiddleware, limiter, checkInteraction);
+// Apply validation to interaction check
+router.post("/check-interaction", auth, validate(schemas.checkInteraction), checkInteraction);
 
 module.exports = router;
