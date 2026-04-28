@@ -2,6 +2,7 @@ const User = require("../models/User");
 const Medicine = require("../models/Medicine");
 const Reminder = require("../models/Reminder");
 const logger = require("../utils/logger");
+const bcrypt = require("bcryptjs");
 
 // GET PROFILE
 exports.getProfile = async (req, res, next) => {
@@ -13,6 +14,39 @@ exports.getProfile = async (req, res, next) => {
     res.json({ success: true, user });
   } catch (error) {
     logger.error("Error fetching profile: %o", error);
+    next(error);
+  }
+};
+
+// CHANGE PASSWORD
+exports.changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: "Current and new passwords are required" });
+    }
+
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: "Incorrect current password" });
+    }
+
+    // Hash and save new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    logger.info(`Password changed for user: ${req.user.userId}`);
+    res.json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    logger.error("Error changing password: %o", error);
     next(error);
   }
 };

@@ -132,3 +132,36 @@ exports.refreshToken = async (req, res, next) => {
     next(error);
   }
 };
+
+// RESET PASSWORD (UNAUTHENTICATED)
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const { email, currentPassword, newPassword } = req.body;
+
+    if (!email || !currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: "Email, current password, and new password are required" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: "Incorrect current password" });
+    }
+
+    // Hash and save new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    logger.info(`Password reset successfully for: ${email}`);
+    res.json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    logger.error('Reset Password Error: %o', error);
+    next(error);
+  }
+};

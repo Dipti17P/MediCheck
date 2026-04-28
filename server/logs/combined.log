@@ -436,3 +436,9 @@
 {"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-04-28 23:34:18"}
 {"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-04-28 23:34:19"}
 {"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-04-28 23:34:19"}
+{"level":"info","message":"POST /api/signup","service":"medicheck-backend","timestamp":"2026-04-28 23:54:13"}
+{"level":"warn","message":"Validation error: Password must contain at least one letter and one number","service":"medicheck-backend","timestamp":"2026-04-28 23:54:13"}
+{"level":"info","message":"POST /api/signup","service":"medicheck-backend","timestamp":"2026-04-28 23:54:39"}
+{"level":"warn","message":"Signup Failed: User already exists: dipti@gmail.com","service":"medicheck-backend","timestamp":"2026-04-28 23:54:40"}
+{"level":"info","message":"POST /api/signup","service":"medicheck-backend","timestamp":"2026-04-28 23:54:44"}
+{"level":"warn","message":"Signup Failed: User already exists: dipti@gmail.com","service":"medicheck-backend","timestamp":"2026-04-28 23:54:44"}

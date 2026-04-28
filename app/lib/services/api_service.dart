@@ -238,6 +238,38 @@ class ApiService {
     ));
     await TokenService.clearAll();
   }
+
+  static Future<Map<String, dynamic>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    return await _safeRequest(() async => http.post(
+      Uri.parse('$baseUrl/change-password'),
+      headers: await _headers(),
+      body: jsonEncode({
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      }),
+    ));
+  }
+
+  static Future<Map<String, dynamic>> resetPassword({
+    required String email,
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    return await _safeRequest(() async => http.post(
+      Uri.parse('$baseUrl/auth/reset-password'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'email': email,
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      }),
+    ));
+  }
 }
 
 // Custom exception for expired tokens

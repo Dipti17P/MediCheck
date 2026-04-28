@@ -42,6 +42,29 @@ const schemas = {
   }),
   refreshToken: Joi.object({
     refreshToken: Joi.string().required()
+  }),
+  changePassword: Joi.object({
+    currentPassword: Joi.string().required(),
+    newPassword: Joi.string()
+      .min(8)
+      .pattern(new RegExp('^(?=.*[a-z])(?=.*[0-9])'))
+      .required()
+      .messages({
+        'string.min': 'New password must be at least 8 characters long',
+        'string.pattern.base': 'New password must contain at least one letter and one number'
+      })
+  }),
+  resetPassword: Joi.object({
+    email: Joi.string().email().required(),
+    currentPassword: Joi.string().required(),
+    newPassword: Joi.string()
+      .min(8)
+      .pattern(new RegExp('^(?=.*[a-z])(?=.*[0-9])'))
+      .required()
+      .messages({
+        'string.min': 'New password must be at least 8 characters long',
+        'string.pattern.base': 'New password must contain at least one letter and one number'
+      })
   })
 };
 
