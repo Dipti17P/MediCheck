@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const { getProfile, updateProfile, updateFcmToken, exportData, deleteAccount, changePassword } = require("../controllers/userController");
-
-// ... (other routes)
+const authMiddleware = require("../middleware/authMiddleware");
+const validate = require("../middleware/validate");
+const schemas = require("../validation/schemas");
 
 router.get("/profile", authMiddleware, getProfile);
 router.put("/profile", authMiddleware, validate(schemas.updateProfile), updateProfile);

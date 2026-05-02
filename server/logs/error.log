@@ -100,3 +100,6 @@
 {"level":"error","message":"Redis Client Error: connect ECONNREFUSED 127.0.0.1:6379. Ensuring graceful fallback.","service":"medicheck-backend","timestamp":"2026-04-28 23:24:41"}
 {"level":"error","message":"Redis Client Error: connect ECONNREFUSED 127.0.0.1:6379. Ensuring graceful fallback.","service":"medicheck-backend","timestamp":"2026-04-28 23:24:58"}
 {"level":"error","message":"Redis Client Error: connect ECONNREFUSED 127.0.0.1:6379. Ensuring graceful fallback.","service":"medicheck-backend","timestamp":"2026-04-28 23:24:58"}
+{"level":"error","message":"Redis Client Error: connect ECONNREFUSED 127.0.0.1:6379. Ensuring graceful fallback.","service":"medicheck-backend","timestamp":"2026-05-02 15:05:56"}
+{"level":"error","message":"Redis Client Error: connect ECONNREFUSED 127.0.0.1:6379. Ensuring graceful fallback.","service":"medicheck-backend","timestamp":"2026-05-02 15:11:00"}
+{"level":"error","message":"Redis Client Error: connect ECONNREFUSED 127.0.0.1:6379. Ensuring graceful fallback.","service":"medicheck-backend","timestamp":"2026-05-02 15:13:50"}

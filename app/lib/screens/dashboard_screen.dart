@@ -57,41 +57,70 @@ class _DashboardScreenState extends State<DashboardScreen> {
         index: _selectedIndex,
         children: _pages,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF1565C0),
-        unselectedItemColor: Colors.grey.shade400,
-        showUnselectedLabels: true,
-        elevation: 10,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.medication_rounded),
-            label: 'Medicines',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.warning_amber_rounded),
-            label: 'Interactions',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.alarm_rounded),
-            label: 'Reminders',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_rounded),
-            label: 'Profile',
-          ),
-        ],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(12),
+              blurRadius: 20,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.white,
+          selectedItemColor: const Color(0xFF2563EB),
+          unselectedItemColor: const Color(0xFF94A3B8),
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11),
+          showUnselectedLabels: true,
+          elevation: 0,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(bottom: 4),
+                child: Icon(Icons.grid_view_rounded),
+              ),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(bottom: 4),
+                child: Icon(Icons.medication_rounded),
+              ),
+              label: 'Medicines',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(bottom: 4),
+                child: Icon(Icons.shield_rounded),
+              ),
+              label: 'Safety',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(bottom: 4),
+                child: Icon(Icons.alarm_rounded),
+              ),
+              label: 'Reminders',
+            ),
+            BottomNavigationBarItem(
+              icon: Padding(
+                padding: EdgeInsets.only(bottom: 4),
+                child: Icon(Icons.person_rounded),
+              ),
+              label: 'Profile',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -105,10 +134,13 @@ class _DashboardHome extends StatefulWidget {
 }
 
 class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProviderStateMixin {
-  // Color palette
-  static const Color _primary = Color(0xFF1565C0);
-  static const Color _primaryLight = Color(0xFF1E88E5);
-  static const Color _bg = Color(0xFFF0F6FF);
+  // Color palette (Modern Blue & White)
+  static const Color _primary      = Color(0xFF2563EB);
+  static const Color _primaryDark  = Color(0xFF1E40AF);
+  static const Color _bg           = Color(0xFFF8FAFC);
+  static const Color _surface      = Colors.white;
+  static const Color _textPrimary  = Color(0xFF0F172A);
+  static const Color _textSecondary= Color(0xFF64748B);
 
   late AnimationController _animController;
 
@@ -167,43 +199,56 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
       body: SafeArea(
         child: Column(
           children: [
-            _buildTopBar(),
+            _buildModernTopBar(),
             Expanded(
               child: RefreshIndicator(
                 onRefresh: _fetchSummaryData,
+                color: _primary,
                 child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildWelcomeBanner(),
-                      const SizedBox(height: 24),
-                      _buildSectionTitle('Overview'),
-                      const SizedBox(height: 12),
-                      _buildSummaryCards(),
-                      const SizedBox(height: 16),
-                      _buildAdherenceStreak(),
-                      const SizedBox(height: 28),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildSectionTitle('Quick Actions'),
-                          TextButton(
-                            onPressed: () => Navigator.pushNamed(context, '/add-medicine').then((_) => _fetchSummaryData()),
-                            child: const Text('+ Add New', style: TextStyle(fontWeight: FontWeight.bold)),
-                          )
-                        ],
+                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1000),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 12),
+                            _buildModernWelcomeBanner(),
+                            const SizedBox(height: 32),
+                            
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                _buildSectionTitle('Your Stats'),
+                                TextButton(
+                                  onPressed: _fetchSummaryData,
+                                  child: const Text('Refresh', style: TextStyle(fontWeight: FontWeight.w700)),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            _buildSummaryCards(),
+                            
+                            const SizedBox(height: 32),
+                            _buildSectionTitle('Quick Actions'),
+                            const SizedBox(height: 16),
+                            _buildQuickActions(),
+                            
+                            const SizedBox(height: 32),
+                            _buildSectionTitle('Safety Check'),
+                            const SizedBox(height: 16),
+                            _buildAIRow(),
+                            
+                            const SizedBox(height: 32),
+                            _buildSectionTitle('Upcoming'),
+                            const SizedBox(height: 16),
+                            _buildRecentActivity(),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 10),
-                      _buildQuickActions(),
-                      const SizedBox(height: 12),
-                      _buildAIRow(),
-                      const SizedBox(height: 28),
-                      _buildSectionTitle('Upcoming Reminders'),
-                      const SizedBox(height: 14),
-                      _buildRecentActivity(),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -214,25 +259,22 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
     );
   }
 
-  Widget _buildTopBar() {
+  Widget _buildModernTopBar() {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 12, 16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))
-        ]
+      decoration: BoxDecoration(
+        color: _bg,
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: _primary.withAlpha(20),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
-              Icons.medical_services_rounded,
+              Icons.health_and_safety_rounded,
               color: _primary,
               size: 24,
             ),
@@ -242,9 +284,9 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
             'MediCheck AI',
             style: TextStyle(
               fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: _primary,
-              letterSpacing: 0.4,
+              fontWeight: FontWeight.w900,
+              color: _textPrimary,
+              letterSpacing: -0.5,
             ),
           ),
           const Spacer(),
@@ -256,12 +298,12 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
               final meds = await ApiService.getMedicines();
               await ReportService.generateAndPrintMedicineReport(meds);
             },
-            icon: const Icon(Icons.picture_as_pdf_rounded, color: _primary),
+            icon: const Icon(Icons.picture_as_pdf_rounded, color: _textSecondary),
             tooltip: 'Export PDF',
           ),
           IconButton(
             onPressed: _logout,
-            icon: const Icon(Icons.logout_rounded, color: _primary),
+            icon: const Icon(Icons.logout_rounded, color: Colors.redAccent),
             tooltip: 'Logout',
           ),
         ],
@@ -269,7 +311,7 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
     );
   }
 
-  Widget _buildWelcomeBanner() {
+  Widget _buildModernWelcomeBanner() {
     return SlideTransition(
       position: Tween<Offset>(
         begin: const Offset(0, 0.2),
@@ -279,20 +321,19 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
         opacity: _animController,
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(24),
-          margin: const EdgeInsets.only(top: 16),
+          padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [_primary, _primaryLight],
+            gradient: LinearGradient(
+              colors: [_primaryDark, _primary],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(32),
             boxShadow: [
               BoxShadow(
-                color: _primary.withAlpha(60),
+                color: _primary.withAlpha(80),
                 blurRadius: 20,
-                offset: const Offset(0, 8),
+                offset: const Offset(0, 10),
               ),
             ],
           ),
@@ -303,35 +344,36 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Welcome back! 👋',
+                      'Welcome back, 👋',
                       style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white.withAlpha(220),
-                        fontWeight: FontWeight.w500,
+                        color: Colors.white.withAlpha(200),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     const Text(
-                      'Your Health\nDashboard',
+                      'Stay healthy today!',
                       style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
                         color: Colors.white,
-                        height: 1.2,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.5,
                       ),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.all(18),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withAlpha(25),
+                  color: Colors.white.withAlpha(30),
                   shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white.withAlpha(50), width: 1.5),
                 ),
                 child: const Icon(
                   Icons.favorite_rounded,
-                  size: 48,
+                  size: 40,
                   color: Colors.white,
                 ),
               ),
@@ -347,19 +389,19 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
       children: [
         Expanded(
           child: _buildSummaryCard(
-            title: 'Active Medicines',
+            title: 'Medicines',
             count: _medicineCount.toString(),
-            icon: Icons.medication,
-            color: const Color(0xFF00897B),
+            icon: Icons.medication_rounded,
+            color: _primary,
           ),
         ),
         const SizedBox(width: 16),
         Expanded(
           child: _buildSummaryCard(
-            title: 'Reminders Set',
+            title: 'Reminders',
             count: _reminderCount.toString(),
-            icon: Icons.alarm,
-            color: const Color(0xFFE65100),
+            icon: Icons.alarm_rounded,
+            color: const Color(0xFFF59E0B), // Modern Amber
           ),
         ),
       ],
@@ -367,33 +409,49 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
   }
 
   Widget _buildAdherenceStreak() {
-    // Mock streak for now
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.orange.shade400, Colors.orange.shade700],
+        gradient: const LinearGradient(
+          colors: [Color(0xFFF97316), Color(0xFFEA580C)], // Modern Orange
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
-          BoxShadow(color: Colors.orange.withAlpha(50), blurRadius: 15, offset: const Offset(0, 5)),
+          BoxShadow(
+            color: const Color(0xFFEA580C).withAlpha(80),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
         ],
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.local_fire_department_rounded, color: Colors.white, size: 40),
-          SizedBox(width: 16),
-          Column(
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withAlpha(50),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.local_fire_department_rounded, color: Colors.white, size: 32),
+          ),
+          const SizedBox(width: 16),
+          const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Adherence Streak', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
-              Text('5 Days', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+              Text(
+                'Adherence Streak',
+                style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+              Text(
+                '5 Days',
+                style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -0.5),
+              ),
             ],
           ),
-          Spacer(),
-          Icon(Icons.arrow_forward_ios, color: Colors.white54, size: 16),
+          const Spacer(),
+          const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white70, size: 18),
         ],
       ),
     );
@@ -406,15 +464,16 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: _surface,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(10),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: color.withAlpha(15),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -422,31 +481,32 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: color.withAlpha(20),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 24),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           _isLoading
-              ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(strokeWidth: 2))
+              ? const SizedBox(height: 28, width: 28, child: CircularProgressIndicator(strokeWidth: 3))
               : Text(
                   count,
                   style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF0D1B2A),
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    color: _textPrimary,
+                    letterSpacing: -0.5,
                   ),
                 ),
           const SizedBox(height: 4),
           Text(
             title,
             style: const TextStyle(
-              fontSize: 13,
-              color: Color(0xFF7B8794),
-              fontWeight: FontWeight.w500,
+              fontSize: 14,
+              color: _textSecondary,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -458,10 +518,10 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
     return Text(
       title,
       style: const TextStyle(
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: FontWeight.w800,
-        color: Color(0xFF0D1B2A),
-        letterSpacing: 0.2,
+        color: _textPrimary,
+        letterSpacing: -0.5,
       ),
     );
   }
@@ -471,16 +531,16 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
       children: [
         Expanded(
           child: _buildActionBtn(
-            icon: Icons.add_circle_outline,
-            label: 'Add Medicine',
+            icon: Icons.add_circle_outline_rounded,
+            label: 'Add Med',
             onTap: () => Navigator.pushNamed(context, '/add-medicine').then((_) => _fetchSummaryData()),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: _buildActionBtn(
-            icon: Icons.warning_amber_rounded,
-            label: 'Check Conflicts',
+            icon: Icons.shield_rounded,
+            label: 'Check Risk',
             onTap: () => Navigator.pushNamed(context, '/check-interaction'),
           ),
         ),
@@ -490,8 +550,8 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
 
   Widget _buildAIRow() {
     return _buildActionBtn(
-      icon: Icons.auto_awesome,
-      label: 'AI Symptom Checker',
+      icon: Icons.auto_awesome_rounded,
+      label: 'AI Health Assessment',
       onTap: () => Navigator.pushNamed(context, '/symptom-checker'),
     );
   }
@@ -503,24 +563,31 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _primary.withAlpha(40)),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(5),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           children: [
             Icon(icon, color: _primary, size: 28),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
               label,
               style: const TextStyle(
-                color: _primary,
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
+                color: _textPrimary,
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
               ),
             ),
           ],

@@ -25,24 +25,34 @@ class _SignupScreenState extends State<SignupScreen>
   late Animation<double> _fadeAnim;
   late Animation<Offset> _slideAnim;
 
-  // ── Color constants ────────────────────────────────────────────────────────
-  static const Color _primary = Color(0xFF1565C0);
-  static const Color _primaryLight = Color(0xFF1E88E5);
-  static const Color _bgTop = Color(0xFFE3F2FD);
-  static const Color _surface = Colors.white;
+  // ── Color constants (Modern Blue & White) ──────────────────────────────────
+  static const Color _primary      = Color(0xFF2563EB);
+  static const Color _primaryDark  = Color(0xFF1E40AF);
+  static const Color _primaryLight = Color(0xFF60A5FA);
+  static const Color _accent       = Color(0xFF60A5FA);
+  static const Color _bg           = Color(0xFFF8FAFC);
+  static const Color _surface      = Colors.white;
+  static const Color _textPrimary  = Color(0xFF0F172A);
+  static const Color _textSecondary= Color(0xFF64748B);
 
   @override
   void initState() {
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 1000),
     );
-    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeIn);
+    _fadeAnim = CurvedAnimation(
+      parent: _animController,
+      curve: const Interval(0.0, 0.65, curve: Curves.easeOut),
+    );
     _slideAnim = Tween<Offset>(
-      begin: const Offset(0, 0.15),
+      begin: const Offset(0, 0.1),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
+    ).animate(CurvedAnimation(
+      parent: _animController,
+      curve: const Interval(0.2, 1.0, curve: Curves.elasticOut),
+    ));
     _animController.forward();
   }
 
@@ -89,7 +99,7 @@ class _SignupScreenState extends State<SignupScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bgTop,
+      backgroundColor: _bg,
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
@@ -100,9 +110,14 @@ class _SignupScreenState extends State<SignupScreen>
                 position: _slideAnim,
                 child: FadeTransition(
                   opacity: _fadeAnim,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
-                    child: _buildCard(),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 500),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+                        child: _buildCard(),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -119,16 +134,16 @@ class _SignupScreenState extends State<SignupScreen>
       width: double.infinity,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [_primary, _primaryLight],
+          colors: [_primaryDark, _primary],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(40),
-          bottomRight: Radius.circular(40),
+          bottomLeft: Radius.circular(50),
+          bottomRight: Radius.circular(50),
         ),
       ),
-      padding: const EdgeInsets.fromLTRB(32, 44, 32, 48),
+      padding: const EdgeInsets.fromLTRB(32, 40, 32, 60),
       child: Column(
         children: [
           // Back button row
@@ -137,44 +152,54 @@ class _SignupScreenState extends State<SignupScreen>
             child: GestureDetector(
               onTap: () => Navigator.pop(context),
               child: Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withAlpha(30),
-                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.white.withAlpha(25),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white.withAlpha(50), width: 1),
                 ),
                 child: const Icon(Icons.arrow_back_ios_new,
                     color: Colors.white, size: 18),
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
           Hero(
             tag: 'logo',
-            child: Image.asset(
-              'assets/logo.png',
-              height: 90,
-              fit: BoxFit.contain,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white.withAlpha(25),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white.withAlpha(50), width: 1),
+              ),
+              child: Image.asset(
+                'assets/logo.png',
+                height: 80,
+                fit: BoxFit.contain,
+              ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           const Text(
             'Create Account',
             style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w800,
+              fontSize: 30,
+              fontWeight: FontWeight.w900,
               color: Colors.white,
-              letterSpacing: 0.5,
+              letterSpacing: 0.8,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
-            'Join MediCheck AI today',
+            'Start your health journey with us',
             style: TextStyle(
-              fontSize: 14,
-              color: Colors.white.withAlpha(204),
+              fontSize: 15,
+              color: Colors.white.withAlpha(210),
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -183,39 +208,39 @@ class _SignupScreenState extends State<SignupScreen>
   // ── Card ───────────────────────────────────────────────────────────────────
   Widget _buildCard() {
     return Transform.translate(
-      offset: const Offset(0, -30),
+      offset: const Offset(0, -40),
       child: Container(
         decoration: BoxDecoration(
           color: _surface,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(32),
           boxShadow: [
             BoxShadow(
-              color: _primary.withAlpha(25),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
+              color: _primaryDark.withAlpha(20),
+              blurRadius: 40,
+              offset: const Offset(0, 16),
             ),
           ],
         ),
-        padding: const EdgeInsets.all(28),
+        padding: const EdgeInsets.all(32),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Your details',
+                'Personal Details',
                 style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF0D1B2A),
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: _textPrimary,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               const Text(
-                'Fill in the information below to register',
-                style: TextStyle(fontSize: 14, color: Color(0xFF7B8794)),
+                'Join thousands of safe medicine users.',
+                style: TextStyle(fontSize: 14, color: _textSecondary),
               ),
-              const SizedBox(height: 28),
+              const SizedBox(height: 32),
 
               // Full Name
               _buildField(
@@ -229,14 +254,14 @@ class _SignupScreenState extends State<SignupScreen>
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
               // Email
               _buildField(
                 controller: _emailController,
                 label: 'Email address',
-                hint: 'you@example.com',
-                icon: Icons.email_outlined,
+                hint: 'name@example.com',
+                icon: Icons.alternate_email_rounded,
                 keyboardType: TextInputType.emailAddress,
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) return 'Email is required';
@@ -246,7 +271,7 @@ class _SignupScreenState extends State<SignupScreen>
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
               // Password
               _buildField(
@@ -260,7 +285,7 @@ class _SignupScreenState extends State<SignupScreen>
                     _obscurePassword
                         ? Icons.visibility_outlined
                         : Icons.visibility_off_outlined,
-                    color: const Color(0xFF7B8794),
+                    color: _textSecondary,
                     size: 20,
                   ),
                   onPressed: () =>
@@ -272,7 +297,7 @@ class _SignupScreenState extends State<SignupScreen>
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
               // Confirm Password
               _buildField(
@@ -286,7 +311,7 @@ class _SignupScreenState extends State<SignupScreen>
                     _obscureConfirm
                         ? Icons.visibility_outlined
                         : Icons.visibility_off_outlined,
-                    color: const Color(0xFF7B8794),
+                    color: _textSecondary,
                     size: 20,
                   ),
                   onPressed: () =>
@@ -300,7 +325,7 @@ class _SignupScreenState extends State<SignupScreen>
                   return null;
                 },
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
 
               // Error message
               if (_errorMessage != null) ...[
@@ -310,46 +335,48 @@ class _SignupScreenState extends State<SignupScreen>
 
               // Sign up button
               _buildPrimaryButton(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 28),
 
               // Password hint
               _buildPasswordHint(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 32),
 
               // Divider + login link
               Row(
                 children: [
-                  const Expanded(child: Divider(color: Color(0xFFE5E9ED))),
+                  const Expanded(child: Divider(color: Color(0xFFF1F5F9))),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Text(
-                      'or',
+                      'OR',
                       style: TextStyle(
-                        color: Colors.grey.shade400,
-                        fontSize: 13,
+                        color: _textSecondary.withAlpha(150),
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.1,
                       ),
                     ),
                   ),
-                  const Expanded(child: Divider(color: Color(0xFFE5E9ED))),
+                  const Expanded(child: Divider(color: Color(0xFFF1F5F9))),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 28),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    'Already have an account? ',
-                    style: TextStyle(color: Color(0xFF7B8794), fontSize: 14),
+                    'Already a member? ',
+                    style: TextStyle(color: _textSecondary, fontSize: 14),
                   ),
                   GestureDetector(
                     onTap: () => Navigator.pushReplacementNamed(
                         context, '/login'),
                     child: const Text(
-                      'Sign in',
+                      'Sign In',
                       style: TextStyle(
-                        color: _primaryLight,
-                        fontWeight: FontWeight.w700,
+                        color: _primary,
+                        fontWeight: FontWeight.w800,
                         fontSize: 14,
                       ),
                     ),
@@ -381,46 +408,45 @@ class _SignupScreenState extends State<SignupScreen>
           label,
           style: const TextStyle(
             fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF3D4F5C),
+            fontWeight: FontWeight.w700,
+            color: _textPrimary,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           obscureText: obscureText,
           validator: validator,
-          style: const TextStyle(fontSize: 15, color: Color(0xFF0D1B2A)),
+          style: const TextStyle(fontSize: 15, color: _textPrimary, fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Color(0xFFBCC4CC), fontSize: 14),
-            prefixIcon: Icon(icon, color: _primaryLight, size: 20),
+            hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+            prefixIcon: Icon(icon, color: _primary, size: 20),
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: const Color(0xFFF5F8FC),
+            fillColor: const Color(0xFFF8FAFC),
             contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: Color(0xFFDDE3EA)),
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: Color(0xFFDDE3EA)),
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: Color(0xFFF1F5F9), width: 1),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: _primaryLight, width: 1.8),
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: _primary, width: 2),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: Color(0xFFE53935)),
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: Colors.redAccent, width: 1),
             ),
             focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide:
-                  const BorderSide(color: Color(0xFFE53935), width: 1.8),
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: Colors.redAccent, width: 2),
             ),
           ),
         ),
@@ -430,34 +456,49 @@ class _SignupScreenState extends State<SignupScreen>
 
   // ── Primary button ─────────────────────────────────────────────────────────
   Widget _buildPrimaryButton() {
-    return SizedBox(
-      height: 52,
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          colors: [_primary, _primaryDark],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: _primary.withAlpha(80),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: ElevatedButton(
         onPressed: _isLoading ? null : _handleSignup,
         style: ElevatedButton.styleFrom(
-          backgroundColor: _primary,
+          backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
-          disabledBackgroundColor: _primary.withAlpha(120),
-          elevation: 0,
+          shadowColor: Colors.transparent,
+          disabledBackgroundColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
         child: _isLoading
             ? const SizedBox(
-                height: 22,
-                width: 22,
+                height: 24,
+                width: 24,
                 child: CircularProgressIndicator(
                   color: Colors.white,
-                  strokeWidth: 2.5,
+                  strokeWidth: 3,
                 ),
               )
             : const Text(
-                'Create Account',
+                'Join MediCheck Now',
                 style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.4,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
                 ),
               ),
       ),

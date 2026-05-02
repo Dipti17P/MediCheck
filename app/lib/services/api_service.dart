@@ -21,11 +21,15 @@ class ApiService {
   static dynamic _handleResponse(http.Response response) {
     if (response.statusCode == 200 || response.statusCode == 201) {
       return jsonDecode(response.body);
-    } else if (response.statusCode == 401) {
-      throw TokenExpiredException('Session expired.');
+    }
+    
+    final body = jsonDecode(response.body);
+    final message = body['message'] ?? body['error'] ?? 'Something went wrong.';
+
+    if (response.statusCode == 401) {
+      throw TokenExpiredException(message);
     } else {
-      final body = jsonDecode(response.body);
-      throw Exception(body['message'] ?? body['error'] ?? 'Something went wrong.');
+      throw Exception(message);
     }
   }
 
@@ -259,7 +263,7 @@ class ApiService {
     required String newPassword,
   }) async {
     return await _safeRequest(() async => http.post(
-      Uri.parse('$baseUrl/auth/reset-password'),
+      Uri.parse('$baseUrl/reset-password'),
       headers: {
         'Content-Type': 'application/json',
       },

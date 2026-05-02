@@ -25,9 +25,13 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
   late Animation<Offset> _slideAnim;
 
   // ── Colors ─────────────────────────────────────────────────────────────────
-  static const Color _primary = Color(0xFF1565C0);
-  static const Color _primaryLight = Color(0xFF1E88E5);
-  static const Color _bg = Color(0xFFF0F6FF);
+  static const Color _primary      = Color(0xFF2563EB);
+  static const Color _primaryDark  = Color(0xFF1E40AF);
+  static const Color _primaryLight = Color(0xFF60A5FA);
+  static const Color _bg           = Color(0xFFF8FAFC);
+  static const Color _surface      = Colors.white;
+  static const Color _textPrimary  = Color(0xFF0F172A);
+  static const Color _textSecondary= Color(0xFF64748B);
 
   // ── Mock Database for Smart Auto-Fill ──────────────────────────────────────
   static const Map<String, Map<String, String>> _medicineDb = {
@@ -182,7 +186,7 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildModernHeader(),
             Expanded(
               child: SlideTransition(
                 position: _slideAnim,
@@ -190,8 +194,15 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
                   opacity: _fadeAnim,
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
-                    child: _buildCard(),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 800),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+                          child: _buildCard(),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -203,68 +214,59 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
   }
 
   // ── Header ──────────────────────────────────────────────────────────────────
-  Widget _buildHeader() {
+  Widget _buildModernHeader() {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [_primary, _primaryLight],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          colors: [_primary, _primaryDark],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(36),
-          bottomRight: Radius.circular(36),
+          bottomLeft: Radius.circular(40),
+          bottomRight: Radius.circular(40),
         ),
       ),
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 48),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 48),
       child: Row(
         children: [
           GestureDetector(
             onTap: () => Navigator.pop(context),
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white.withAlpha(30),
-                borderRadius: BorderRadius.circular(10),
+                color: Colors.white.withAlpha(40),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: Colors.white24),
               ),
-              child: const Icon(Icons.arrow_back_ios_new,
-                  color: Colors.white, size: 18),
+              child: const Icon(Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white, size: 20),
             ),
           ),
-          const SizedBox(width: 16),
-          Column(
+          const SizedBox(width: 20),
+          const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Add Medicine',
                 style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
                   color: Colors.white,
+                  fontSize: 26,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.5,
                 ),
               ),
+              SizedBox(height: 4),
               Text(
-                'Smart auto-fill available',
+                'Create a new health record',
                 style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.white.withAlpha(204),
+                  color: Colors.white70,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
-          ),
-          const Spacer(),
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white.withAlpha(25),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(
-              Icons.auto_awesome,
-              color: Colors.white,
-              size: 28,
-            ),
           ),
         ],
       ),
@@ -278,12 +280,13 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(32),
+          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: _primary.withAlpha(22),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
+              color: Colors.black.withAlpha(5),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
           ],
         ),
@@ -297,36 +300,40 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: _primaryLight.withAlpha(20),
-                      borderRadius: BorderRadius.circular(12),
+                      color: _primary.withAlpha(10),
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Icon(Icons.medication_rounded,
-                        color: _primaryLight, size: 22),
+                    child: const Icon(Icons.description_rounded,
+                        color: _primary, size: 24),
                   ),
-                  const SizedBox(width: 14),
+                  const SizedBox(width: 16),
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Medicine Details',
                         style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF0D1B2A),
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          color: _textPrimary,
+                          letterSpacing: -0.5,
                         ),
                       ),
                       Text(
                         'Search to auto-fill or enter manually',
                         style: TextStyle(
-                            fontSize: 12, color: Color(0xFF7B8794)),
+                          fontSize: 13,
+                          color: _textSecondary,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
-              const SizedBox(height: 28),
+              const SizedBox(height: 32),
 
               // Medicine Autocomplete
               _buildAutocompleteField(),
@@ -524,9 +531,10 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
         Text(
           label,
           style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF3D4F5C),
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+            color: _textPrimary,
+            letterSpacing: 0.1,
           ),
         ),
         const SizedBox(height: 8),
@@ -534,43 +542,42 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
           controller: controller,
           maxLines: maxLines,
           validator: validator,
-          style: const TextStyle(fontSize: 15, color: Color(0xFF0D1B2A)),
+          style: const TextStyle(fontSize: 15, color: _textPrimary, fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle:
-                const TextStyle(color: Color(0xFFBCC4CC), fontSize: 13),
+                const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
             prefixIcon: maxLines == 1
-                ? Icon(icon, color: _primaryLight, size: 20)
+                ? Icon(icon, color: _primary, size: 22)
                 : Padding(
                     padding: const EdgeInsets.only(left: 12, top: 12),
-                    child: Icon(icon, color: _primaryLight, size: 20),
+                    child: Icon(icon, color: _primary, size: 22),
                   ),
             prefixIconConstraints: maxLines > 1
                 ? const BoxConstraints(minWidth: 48, minHeight: 48)
                 : null,
             alignLabelWithHint: maxLines > 1,
             filled: true,
-            fillColor: const Color(0xFFF5F8FC),
-            contentPadding: EdgeInsets.symmetric(
+            fillColor: const Color(0xFFF8FAFC),
+            contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
-              vertical: maxLines > 1 ? 14 : 14,
+              vertical: 16,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: Color(0xFFDDE3EA)),
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: Color(0xFFDDE3EA)),
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide:
-                  const BorderSide(color: _primaryLight, width: 1.8),
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: _primary, width: 2),
             ),
             errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: Color(0xFFE53935)),
+              borderRadius: BorderRadius.circular(16),
+              borderSide: const BorderSide(color: Colors.redAccent),
             ),
           ),
         ),
@@ -580,8 +587,17 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
 
   // ── Submit button ───────────────────────────────────────────────────────────
   Widget _buildSubmitButton() {
-    return SizedBox(
-      height: 52,
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: _isLoading ? null : [
+          BoxShadow(
+            color: _primary.withAlpha(60),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
       child: ElevatedButton.icon(
         onPressed: _isLoading ? null : _handleAddMedicine,
         icon: _isLoading
@@ -591,22 +607,24 @@ class _AddMedicineScreenState extends State<AddMedicineScreen>
                 child: CircularProgressIndicator(
                     color: Colors.white, strokeWidth: 2.5),
               )
-            : const Icon(Icons.add_circle_outline_rounded, size: 20),
+            : const Icon(Icons.add_circle_outline_rounded, size: 22, color: Colors.white),
         label: Text(
-          _isLoading ? 'Saving...' : 'Save Medicine',
+          _isLoading ? 'Processing...' : 'Save Medicine Record',
           style: const TextStyle(
             fontSize: 16,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.3,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.5,
           ),
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: _primary,
           foregroundColor: Colors.white,
-          disabledBackgroundColor: _primary.withAlpha(120),
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          disabledBackgroundColor: const Color(0xFFE2E8F0),
+          disabledForegroundColor: const Color(0xFF94A3B8),
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(20),
           ),
         ),
       ),

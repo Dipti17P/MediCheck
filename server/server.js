@@ -75,6 +75,7 @@ const connectDB = async () => {
 
 connectDB();
 
+app.use("/api/auth", authRoutes);
 app.use("/api", authRoutes);
 app.use("/api", medicineRoutes);
 app.use("/api", interactionRoutes);

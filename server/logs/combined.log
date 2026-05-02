@@ -442,3 +442,140 @@
 {"level":"warn","message":"Signup Failed: User already exists: dipti@gmail.com","service":"medicheck-backend","timestamp":"2026-04-28 23:54:40"}
 {"level":"info","message":"POST /api/signup","service":"medicheck-backend","timestamp":"2026-04-28 23:54:44"}
 {"level":"warn","message":"Signup Failed: User already exists: dipti@gmail.com","service":"medicheck-backend","timestamp":"2026-04-28 23:54:44"}
+{"level":"warn","message":"FIREBASE_SERVICE_ACCOUNT not found. Push notifications will not be sent.","service":"medicheck-backend","timestamp":"2026-05-02 15:05:56"}
+{"level":"info","message":"🚀 Server running on http://localhost:5000","service":"medicheck-backend","timestamp":"2026-05-02 15:05:56"}
+{"level":"error","message":"Redis Client Error: connect ECONNREFUSED 127.0.0.1:6379. Ensuring graceful fallback.","service":"medicheck-backend","timestamp":"2026-05-02 15:05:56"}
+{"level":"warn","message":"Redis reconnection limit reached. Falling back to local cache permanently.","service":"medicheck-backend","timestamp":"2026-05-02 15:05:57"}
+{"level":"info","message":"✅ MongoDB Connected to: medicheck","service":"medicheck-backend","timestamp":"2026-05-02 15:05:59"}
+{"level":"info","message":"POST /api/login","service":"medicheck-backend","timestamp":"2026-05-02 15:08:10"}
+{"level":"warn","message":"Login Failed: Invalid password for: dipti@gmail.com","service":"medicheck-backend","timestamp":"2026-05-02 15:08:11"}
+{"level":"info","message":"POST /api/auth/reset-password","service":"medicheck-backend","timestamp":"2026-05-02 15:09:12"}
+{"level":"info","message":"POST /api/auth/reset-password","service":"medicheck-backend","timestamp":"2026-05-02 15:09:15"}
+{"level":"info","message":"POST /api/auth/reset-password","service":"medicheck-backend","timestamp":"2026-05-02 15:10:29"}
+{"level":"warn","message":"FIREBASE_SERVICE_ACCOUNT not found. Push notifications will not be sent.","service":"medicheck-backend","timestamp":"2026-05-02 15:11:00"}
+{"level":"info","message":"🚀 Server running on http://localhost:5000","service":"medicheck-backend","timestamp":"2026-05-02 15:11:00"}
+{"level":"error","message":"Redis Client Error: connect ECONNREFUSED 127.0.0.1:6379. Ensuring graceful fallback.","service":"medicheck-backend","timestamp":"2026-05-02 15:11:00"}
+{"level":"warn","message":"Redis reconnection limit reached. Falling back to local cache permanently.","service":"medicheck-backend","timestamp":"2026-05-02 15:11:01"}
+{"level":"info","message":"✅ MongoDB Connected to: medicheck","service":"medicheck-backend","timestamp":"2026-05-02 15:11:03"}
+{"level":"info","message":"POST /api/auth/reset-password","service":"medicheck-backend","timestamp":"2026-05-02 15:11:44"}
+{"level":"info","message":"POST /api/auth/reset-password","service":"medicheck-backend","timestamp":"2026-05-02 15:12:41"}
+{"level":"info","message":"POST /api/auth/reset-password","service":"medicheck-backend","timestamp":"2026-05-02 15:13:20"}
+{"level":"warn","message":"FIREBASE_SERVICE_ACCOUNT not found. Push notifications will not be sent.","service":"medicheck-backend","timestamp":"2026-05-02 15:13:50"}
+{"level":"info","message":"🚀 Server running on http://localhost:5000","service":"medicheck-backend","timestamp":"2026-05-02 15:13:50"}
+{"level":"error","message":"Redis Client Error: connect ECONNREFUSED 127.0.0.1:6379. Ensuring graceful fallback.","service":"medicheck-backend","timestamp":"2026-05-02 15:13:50"}
+{"level":"warn","message":"Redis reconnection limit reached. Falling back to local cache permanently.","service":"medicheck-backend","timestamp":"2026-05-02 15:13:51"}
+{"level":"info","message":"✅ MongoDB Connected to: medicheck","service":"medicheck-backend","timestamp":"2026-05-02 15:13:53"}
+{"level":"info","message":"POST /api/login","service":"medicheck-backend","timestamp":"2026-05-02 15:14:22"}
+{"level":"warn","message":"Login Failed: Invalid password for: dipti@gmail.com","service":"medicheck-backend","timestamp":"2026-05-02 15:14:22"}
+{"level":"info","message":"POST /api/login","service":"medicheck-backend","timestamp":"2026-05-02 15:14:27"}
+{"level":"warn","message":"Login Failed: Invalid password for: dipti@gmail.com","service":"medicheck-backend","timestamp":"2026-05-02 15:14:27"}
+{"level":"info","message":"POST /api/login","service":"medicheck-backend","timestamp":"2026-05-02 15:20:17"}
+{"level":"warn","message":"Login Failed: Invalid password for: dipti@gmail.com","service":"medicheck-backend","timestamp":"2026-05-02 15:20:17"}
+{"level":"info","message":"POST /api/reset-password","service":"medicheck-backend","timestamp":"2026-05-02 15:20:44"}
+{"level":"info","message":"POST /api/login","service":"medicheck-backend","timestamp":"2026-05-02 15:22:57"}
+{"level":"warn","message":"Login Failed: Invalid password for: dipti@gmail.com","service":"medicheck-backend","timestamp":"2026-05-02 15:22:57"}
+{"level":"info","message":"POST /api/reset-password","service":"medicheck-backend","timestamp":"2026-05-02 15:23:09"}
+{"level":"info","message":"Password reset successfully for: dipti@gmail.com","service":"medicheck-backend","timestamp":"2026-05-02 15:23:09"}
+{"level":"info","message":"POST /api/login","service":"medicheck-backend","timestamp":"2026-05-02 15:23:12"}
+{"level":"info","message":"Login successful: dipti@gmail.com","service":"medicheck-backend","timestamp":"2026-05-02 15:23:12"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:23:13"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:23:13"}
+{"level":"info","message":"GET /api/profile","service":"medicheck-backend","timestamp":"2026-05-02 15:23:13"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:23:13"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:23:13"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:23:13"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:23:13"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:23:13"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:23:13"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:23:13"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:23:14"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:24:37"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:24:37"}
+{"level":"info","message":"GET /api/profile","service":"medicheck-backend","timestamp":"2026-05-02 15:24:37"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:24:37"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:24:37"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:24:38"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:24:38"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:24:38"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:24:38"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:24:40"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:24:40"}
+{"level":"info","message":"GET /api/profile","service":"medicheck-backend","timestamp":"2026-05-02 15:24:40"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:24:40"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:24:40"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:24:40"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:24:40"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:24:40"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:24:40"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:24:40"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:24:40"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:24:40"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:24:40"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:25:03"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:25:03"}
+{"level":"info","message":"GET /api/profile","service":"medicheck-backend","timestamp":"2026-05-02 15:25:03"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:25:03"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:25:03"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:25:03"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:25:03"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:25:03"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:25:03"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:25:04"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:25:04"}
+{"level":"info","message":"GET /api/profile","service":"medicheck-backend","timestamp":"2026-05-02 15:25:04"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:25:04"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:25:04"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:25:04"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:25:04"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:25:04"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:25:04"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:25:04"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:25:04"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:25:04"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:25:04"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:32:14"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:32:14"}
+{"level":"info","message":"GET /api/profile","service":"medicheck-backend","timestamp":"2026-05-02 15:32:14"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:32:14"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:32:14"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:32:14"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:32:14"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:32:14"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:32:14"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:32:15"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:32:15"}
+{"level":"info","message":"GET /api/profile","service":"medicheck-backend","timestamp":"2026-05-02 15:32:15"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:32:15"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:32:15"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:32:15"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:32:15"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:32:16"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:32:16"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:32:16"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:32:16"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:32:16"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:32:16"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:37:34"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:37:34"}
+{"level":"info","message":"GET /api/profile","service":"medicheck-backend","timestamp":"2026-05-02 15:37:34"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:37:34"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:37:34"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:37:34"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:37:34"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:37:34"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:37:34"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:37:36"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:37:36"}
+{"level":"info","message":"GET /api/profile","service":"medicheck-backend","timestamp":"2026-05-02 15:37:36"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:37:36"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:37:36"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:37:36"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:37:36"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:37:37"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:37:37"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:37:37"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:37:37"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-02 15:37:38"}
+{"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:37:38"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:38:11"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:38:11"}

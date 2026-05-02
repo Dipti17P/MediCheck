@@ -14,9 +14,13 @@ class _ViewMedicineScreenState extends State<ViewMedicineScreen> {
   String? _errorMessage;
 
   // ── Colors ─────────────────────────────────────────────────────────────────
-  static const Color _primary      = Color(0xFF1565C0);
-  static const Color _primaryLight = Color(0xFF1E88E5);
-  static const Color _bg           = Color(0xFFF0F6FF);
+  static const Color _primary      = Color(0xFF2563EB);
+  static const Color _primaryDark  = Color(0xFF1E40AF);
+  static const Color _primaryLight = Color(0xFF60A5FA);
+  static const Color _bg           = Color(0xFFF8FAFC);
+  static const Color _surface      = Colors.white;
+  static const Color _textPrimary  = Color(0xFF0F172A);
+  static const Color _textSecondary= Color(0xFF64748B);
 
   @override
   void initState() {
@@ -51,7 +55,7 @@ class _ViewMedicineScreenState extends State<ViewMedicineScreen> {
       appBar: AppBar(
         title: const Text(
           'My Medicines',
-          style: TextStyle(fontWeight: FontWeight.w800, color: Colors.white),
+          style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -0.5),
         ),
         backgroundColor: _primary,
         elevation: 0,
@@ -59,7 +63,7 @@ class _ViewMedicineScreenState extends State<ViewMedicineScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
             onPressed: _fetchMedicines,
           ),
         ],
@@ -72,10 +76,12 @@ class _ViewMedicineScreenState extends State<ViewMedicineScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.pushNamed(context, '/add-medicine').then((_) => _fetchMedicines()),
         backgroundColor: _primary,
-        child: const Icon(Icons.add, color: Colors.white),
+        elevation: 8,
+        icon: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
+        label: const Text('Add New', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
     );
   }
@@ -83,12 +89,16 @@ class _ViewMedicineScreenState extends State<ViewMedicineScreen> {
   Widget _buildHeaderDecoration() {
     return Container(
       width: double.infinity,
-      height: 20,
+      height: 32,
       decoration: const BoxDecoration(
-        color: _primary,
+        gradient: LinearGradient(
+          colors: [_primary, _primaryDark],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(30),
+          bottomLeft: Radius.circular(40),
+          bottomRight: Radius.circular(40),
         ),
       ),
     );
@@ -153,13 +163,36 @@ class _ViewMedicineScreenState extends State<ViewMedicineScreen> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-      itemCount: _medicines.length,
-      itemBuilder: (context, index) {
-        final med = _medicines[index];
-        return _buildMedicineCard(med);
-      },
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final double width = constraints.maxWidth;
+            int crossAxisCount = 1;
+            if (width > 900) {
+              crossAxisCount = 3;
+            } else if (width > 600) {
+              crossAxisCount = 2;
+            }
+
+            return GridView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+              itemCount: _medicines.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 0,
+                mainAxisExtent: 260, // Fixed height for consistency
+              ),
+              itemBuilder: (context, index) {
+                final med = _medicines[index];
+                return _buildMedicineCard(med);
+              },
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -182,12 +215,13 @@ class _ViewMedicineScreenState extends State<ViewMedicineScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(10),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withAlpha(5),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -196,25 +230,35 @@ class _ViewMedicineScreenState extends State<ViewMedicineScreen> {
         children: [
           // Header of card
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
-              color: _primaryLight.withAlpha(20),
+              color: _primary.withAlpha(10),
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
               ),
             ),
             child: Row(
               children: [
-                const Icon(Icons.medication_rounded, color: _primary),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: _primary.withAlpha(20),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.medication_rounded, color: _primary, size: 20),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: _primary,
+                      fontWeight: FontWeight.w900,
+                      color: _textPrimary,
+                      letterSpacing: -0.5,
                     ),
                   ),
                 ),
@@ -254,33 +298,38 @@ class _ViewMedicineScreenState extends State<ViewMedicineScreen> {
     required String content,
     bool isWarning = false,
   }) {
-    return Column(
+    final Color color = isWarning ? const Color(0xFFF59E0B) : _primary;
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Icon(icon, size: 18, color: isWarning ? Colors.orange[700] : Colors.grey[700]),
-            const SizedBox(width: 8),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: isWarning ? Colors.orange[800] : Colors.grey[800],
+        Icon(icon, size: 18, color: color),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: color,
+                  letterSpacing: 0.2,
+                ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        Padding(
-          padding: const EdgeInsets.only(left: 26),
-          child: Text(
-            content,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700],
-              height: 1.4,
-            ),
+              const SizedBox(height: 4),
+              Text(
+                content,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: _textSecondary,
+                  height: 1.4,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         ),
       ],

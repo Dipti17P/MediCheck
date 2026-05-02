@@ -10,9 +10,13 @@ class InteractionScreen extends StatefulWidget {
 
 class _InteractionScreenState extends State<InteractionScreen> {
   // ── Colors ─────────────────────────────────────────────────────────────────
-  static const Color _primary = Color(0xFF1565C0);
-  static const Color _primaryLight = Color(0xFF1E88E5);
-  static const Color _bg = Color(0xFFF0F6FF);
+  static const Color _primary      = Color(0xFF2563EB);
+  static const Color _primaryDark  = Color(0xFF1E40AF);
+  static const Color _primaryLight = Color(0xFF60A5FA);
+  static const Color _bg           = Color(0xFFF8FAFC);
+  static const Color _surface      = Colors.white;
+  static const Color _textPrimary  = Color(0xFF0F172A);
+  static const Color _textSecondary= Color(0xFF64748B);
 
   bool _isLoadingMedicines = true;
   List<dynamic> _savedMedicines = [];
@@ -99,51 +103,65 @@ class _InteractionScreenState extends State<InteractionScreen> {
     return Scaffold(
       backgroundColor: _bg,
       appBar: AppBar(
-        title: const Text('Interaction Checker', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text(
+          'Safety Check',
+          style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -0.5),
+        ),
         backgroundColor: _primary,
         iconTheme: const IconThemeData(color: Colors.white),
         elevation: 0,
+        centerTitle: true,
       ),
       body: Column(
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
             decoration: const BoxDecoration(
-              color: _primary,
+              gradient: LinearGradient(
+                colors: [_primary, _primaryDark],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
               borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
+                bottomLeft: Radius.circular(40),
+                bottomRight: Radius.circular(40),
               ),
             ),
             child: const Text(
               'Select medicines from your saved list to check for potential drug interactions.',
-              style: TextStyle(color: Colors.white70, fontSize: 14),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500, height: 1.4),
             ),
           ),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Your Medicines',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF0D1B2A),
-                    ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
+                        'Your Medicines',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0D1B2A),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _buildMedicineSelector(),
+                      const SizedBox(height: 24),
+                      _buildCheckButton(),
+                      const SizedBox(height: 24),
+                      if (_error != null) _buildErrorBanner(),
+                      if (_interactionResult != null) _buildResultCard(),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  _buildMedicineSelector(),
-                  const SizedBox(height: 24),
-                  _buildCheckButton(),
-                  const SizedBox(height: 24),
-                  if (_error != null) _buildErrorBanner(),
-                  if (_interactionResult != null) _buildResultCard(),
-                ],
+                ),
               ),
             ),
           ),
@@ -156,32 +174,40 @@ class _InteractionScreenState extends State<InteractionScreen> {
     if (_isLoadingMedicines) {
       return const Center(
         child: Padding(
-          padding: EdgeInsets.all(20.0),
-          child: CircularProgressIndicator(),
+          padding: EdgeInsets.all(40.0),
+          child: CircularProgressIndicator(color: _primary),
         ),
       );
     }
 
     if (_savedMedicines.isEmpty) {
       return Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
         ),
         child: Column(
           children: [
-            Icon(Icons.medication_liquid_rounded, size: 48, color: Colors.grey.shade400),
-            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: _primary.withAlpha(10),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.medication_liquid_rounded, size: 40, color: _primary),
+            ),
+            const SizedBox(height: 16),
             const Text(
               'No medicines found',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+              style: TextStyle(fontWeight: FontWeight.w800, color: _textPrimary, fontSize: 16),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             const Text(
               'Add medicines first to check interactions.',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13, color: _textSecondary),
             ),
           ],
         ),
@@ -189,43 +215,72 @@ class _InteractionScreenState extends State<InteractionScreen> {
     }
 
     return Wrap(
-      spacing: 8.0,
-      runSpacing: 8.0,
+      spacing: 10.0,
+      runSpacing: 10.0,
       children: _savedMedicines.map((med) {
         final name = med['name'] as String? ?? 'Unknown';
         final isSelected = _selectedMedicines.contains(name);
-        return FilterChip(
+        return ChoiceChip(
           label: Text(name),
           selected: isSelected,
           onSelected: (bool selected) => _toggleMedicine(name),
+          selectedColor: _primary,
+          labelStyle: TextStyle(
+            color: isSelected ? Colors.white : _textPrimary,
+            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+            fontSize: 13,
+          ),
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: isSelected ? _primary : const Color(0xFFF1F5F9), width: 1.5),
+          ),
+          showCheckmark: false,
+          elevation: isSelected ? 4 : 0,
+          shadowColor: _primary.withAlpha(50),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         );
       }).toList(),
     );
   }
 
   Widget _buildCheckButton() {
-    return ElevatedButton.icon(
-      onPressed: _isChecking || _selectedMedicines.length < 2 ? null : _checkInteraction,
-      icon: _isChecking
-          ? const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-            )
-          : const Icon(Icons.shield_rounded),
-      label: Text(
-        _isChecking ? 'Analyzing...' : 'Check Interactions',
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+    final bool canCheck = !_isChecking && _selectedMedicines.length >= 2;
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: canCheck ? [
+          BoxShadow(
+            color: _primary.withAlpha(60),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ] : null,
       ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: _primary,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        disabledBackgroundColor: _primary.withAlpha(100),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+      child: ElevatedButton.icon(
+        onPressed: canCheck ? _checkInteraction : null,
+        icon: _isChecking
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+              )
+            : const Icon(Icons.shield_rounded, size: 24),
+        label: Text(
+          _isChecking ? 'Analyzing Potential Risks...' : 'Run Safety Analysis',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: -0.5),
         ),
-        elevation: 0,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _primary,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          disabledBackgroundColor: const Color(0xFFE2E8F0),
+          disabledForegroundColor: const Color(0xFF94A3B8),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
       ),
     );
   }

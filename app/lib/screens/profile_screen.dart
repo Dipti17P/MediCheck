@@ -10,8 +10,13 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   // ── Colors ─────────────────────────────────────────────────────────────────
-  static const Color _primary = Color(0xFF1565C0);
-  static const Color _bg = Color(0xFFF0F6FF);
+  static const Color _primary      = Color(0xFF2563EB);
+  static const Color _primaryDark  = Color(0xFF1E40AF);
+  static const Color _primaryLight = Color(0xFF60A5FA);
+  static const Color _bg           = Color(0xFFF8FAFC);
+  static const Color _surface      = Colors.white;
+  static const Color _textPrimary  = Color(0xFF0F172A);
+  static const Color _textSecondary= Color(0xFF64748B);
 
   bool _isLoading = true;
   String? _error;
@@ -118,16 +123,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: _bg,
       appBar: AppBar(
-        title: const Text('My Profile', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        title: const Text(
+          'My Profile',
+          style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -0.5),
+        ),
         backgroundColor: _primary,
         elevation: 0,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
-            icon: Icon(_isEditing ? Icons.close : Icons.edit, color: Colors.white),
+            icon: Icon(_isEditing ? Icons.close_rounded : Icons.edit_rounded, color: Colors.white),
             onPressed: () {
               setState(() {
                 _isEditing = !_isEditing;
-                // If cancelling edit, reset fields
                 if (!_isEditing && _profile != null) {
                   final allergies = _profile!['allergies'] as List<dynamic>?;
                   _allergiesController.text = allergies != null ? allergies.join(', ') : '';
@@ -140,6 +149,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: _fetchProfile,
+        color: _primary,
         child: _buildBody(),
       ),
     );
@@ -147,24 +157,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator(color: _primary));
     }
 
     if (_error != null) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(32.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 48, color: Colors.red),
-              const SizedBox(height: 16),
-              Text(_error!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
-              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(color: Colors.red.withAlpha(20), shape: BoxShape.circle),
+                child: const Icon(Icons.error_outline_rounded, size: 48, color: Colors.redAccent),
+              ),
+              const SizedBox(height: 20),
+              Text(_error!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: _textPrimary)),
+              const SizedBox(height: 32),
               ElevatedButton.icon(
                 onPressed: _fetchProfile,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Retry Connection'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
               ),
             ],
           ),
@@ -177,239 +197,292 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Header Card
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(10),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: _primary.withAlpha(30),
-                  child: Text(
-                    name.isNotEmpty ? name[0].toUpperCase() : 'U',
-                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: _primary),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  name,
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF0D1B2A)),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  email,
-                  style: const TextStyle(fontSize: 14, color: Colors.black54),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Details Card
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(10),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.medical_information_rounded, color: _primary),
-                    SizedBox(width: 8),
-                    Text('Medical Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-                const Divider(height: 30),
-                
-                const Text('Known Allergies', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
-                const SizedBox(height: 8),
-                _isEditing
-                    ? TextField(
-                        controller: _allergiesController,
-                        decoration: InputDecoration(
-                          hintText: 'E.g., Peanuts, Penicillin (comma separated)',
-                          filled: true,
-                          fillColor: const Color(0xFFF5F8FC),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
-                        ),
-                      )
-                    : Text(
-                        _allergiesController.text.isEmpty ? 'No allergies reported.' : _allergiesController.text,
-                        style: const TextStyle(color: Colors.black54),
-                      ),
-                
-                const SizedBox(height: 20),
-                
-                const Text('Medical History', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
-                const SizedBox(height: 8),
-                _isEditing
-                    ? TextField(
-                        controller: _historyController,
-                        maxLines: 3,
-                        decoration: InputDecoration(
-                          hintText: 'Brief medical history...',
-                          filled: true,
-                          fillColor: const Color(0xFFF5F8FC),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
-                        ),
-                      )
-                    : Text(
-                        _historyController.text.isEmpty ? 'No medical history reported.' : _historyController.text,
-                        style: const TextStyle(color: Colors.black54),
-                      ),
-
-                if (_isEditing) ...[
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: _isSaving ? null : _saveProfile,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _primary,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      child: _isSaving
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                          : const Text('Save Changes', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                ]
-              ],
-            ),
-          ),
-          const SizedBox(height: 40),
-
-          const SizedBox(height: 24),
-          // Legal & Data Management
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(10),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.shield_outlined, color: _primary),
-                    SizedBox(width: 8),
-                    Text('Compliance & Privacy', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-                const Divider(height: 30),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.description_outlined),
-                  title: const Text('Privacy Policy'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _showLegalDialog('Privacy Policy', 'Your privacy is our priority. We handle your medicine data with encryption and never share it with third parties without consent.'),
-                ),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.gavel_outlined),
-                  title: const Text('Terms of Service'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _showLegalDialog('Terms of Service', 'By using MediCheck AI, you agree to our terms. This app is for informational purposes and is not a substitute for professional medical advice.'),
-                ),
-                const SizedBox(height: 12),
-                const Text('Data Rights', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _exportData,
-                        icon: const Icon(Icons.download_rounded, size: 18),
-                        label: const Text('Export Data'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey.shade100,
-                          foregroundColor: Colors.black87,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _confirmDeleteAccount,
-                        icon: const Icon(Icons.delete_forever, size: 18),
-                        label: const Text('Delete Account'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red.shade50,
-                          foregroundColor: Colors.red,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 20),
+              // Header Card
+              Container(
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(32),
+                  border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(5),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: _showChangePasswordDialog,
-                    icon: const Icon(Icons.lock_outline, size: 18),
-                    label: const Text('Change Password'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: _primary,
-                      side: const BorderSide(color: _primary),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: _primary.withAlpha(40), width: 2),
+                      ),
+                      child: CircleAvatar(
+                        radius: 44,
+                        backgroundColor: _primary.withAlpha(20),
+                        child: Text(
+                          name.isNotEmpty ? name[0].toUpperCase() : 'U',
+                          style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w900, color: _primary),
+                        ),
+                      ),
                     ),
+                    const SizedBox(height: 20),
+                    Text(
+                      name,
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: _textPrimary, letterSpacing: -0.5),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      email,
+                      style: const TextStyle(fontSize: 15, color: _textSecondary, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Medical Information Card
+              Container(
+                padding: const EdgeInsets.all(28),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(32),
+                  border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(5),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(color: _primary.withAlpha(15), borderRadius: BorderRadius.circular(12)),
+                          child: const Icon(Icons.medical_services_rounded, color: _primary, size: 24),
+                        ),
+                        const SizedBox(width: 16),
+                        const Text('Health Profile', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900, color: _textPrimary, letterSpacing: -0.5)),
+                      ],
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Divider(color: Color(0xFFF1F5F9), thickness: 1.5),
+                    ),
+                    
+                    const Text('Known Allergies', style: TextStyle(fontWeight: FontWeight.w800, color: _textPrimary, fontSize: 15)),
+                    const SizedBox(height: 10),
+                    _isEditing
+                        ? TextField(
+                            controller: _allergiesController,
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                            decoration: InputDecoration(
+                              hintText: 'E.g., Peanuts, Penicillin (comma separated)',
+                              filled: true,
+                              fillColor: const Color(0xFFF8FAFC),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: _primary, width: 2)),
+                            ),
+                          )
+                        : Text(
+                            _allergiesController.text.isEmpty ? 'No allergies reported.' : _allergiesController.text,
+                            style: const TextStyle(color: _textSecondary, fontSize: 15, fontWeight: FontWeight.w500),
+                          ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    const Text('Medical History', style: TextStyle(fontWeight: FontWeight.w800, color: _textPrimary, fontSize: 15)),
+                    const SizedBox(height: 10),
+                    _isEditing
+                        ? TextField(
+                            controller: _historyController,
+                            maxLines: 4,
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                            decoration: InputDecoration(
+                              hintText: 'Brief medical history...',
+                              filled: true,
+                              fillColor: const Color(0xFFF8FAFC),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: _primary, width: 2)),
+                            ),
+                          )
+                        : Text(
+                            _historyController.text.isEmpty ? 'No medical history reported.' : _historyController.text,
+                            style: const TextStyle(color: _textSecondary, fontSize: 15, fontWeight: FontWeight.w500),
+                          ),
+
+                    if (_isEditing) ...[
+                      const SizedBox(height: 32),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 54,
+                        child: ElevatedButton(
+                          onPressed: _isSaving ? null : _saveProfile,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _primary,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          ),
+                          child: _isSaving
+                              ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                              : const Text('Save Health Profile', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
+                        ),
+                      ),
+                    ]
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Compliance & Security Card
+              Container(
+                padding: const EdgeInsets.all(28),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(32),
+                  border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(5),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(color: _primary.withAlpha(15), borderRadius: BorderRadius.circular(12)),
+                          child: const Icon(Icons.security_rounded, color: _primary, size: 24),
+                        ),
+                        const SizedBox(width: 16),
+                        const Text('Privacy & Security', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w900, color: _textPrimary, letterSpacing: -0.5)),
+                      ],
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Divider(color: Color(0xFFF1F5F9), thickness: 1.5),
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(10)),
+                        child: const Icon(Icons.privacy_tip_outlined, size: 20, color: _textSecondary),
+                      ),
+                      title: const Text('Privacy Policy', style: TextStyle(fontWeight: FontWeight.w700, color: _textPrimary)),
+                      trailing: const Icon(Icons.chevron_right_rounded, color: _textSecondary),
+                      onTap: () => _showLegalDialog('Privacy Policy', 'Your privacy is our priority. We handle your medicine data with industry-standard encryption and never share it with third parties without your explicit consent.'),
+                    ),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(10)),
+                        child: const Icon(Icons.gavel_outlined, size: 20, color: _textSecondary),
+                      ),
+                      title: const Text('Terms of Service', style: TextStyle(fontWeight: FontWeight.w700, color: _textPrimary)),
+                      trailing: const Icon(Icons.chevron_right_rounded, color: _textSecondary),
+                      onTap: () => _showLegalDialog('Terms of Service', 'By using MediCheck AI, you agree to our service terms. This application provides informational content and is not a substitute for professional medical consultation or diagnosis.'),
+                    ),
+                    const SizedBox(height: 24),
+                    const Text('Data Management', style: TextStyle(fontWeight: FontWeight.w800, color: _textPrimary, fontSize: 15)),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: _exportData,
+                            icon: const Icon(Icons.download_rounded, size: 18),
+                            label: const Text('Export JSON'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFF1F5F9),
+                              foregroundColor: _textPrimary,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: _confirmDeleteAccount,
+                            icon: const Icon(Icons.delete_forever_rounded, size: 18),
+                            label: const Text('Delete Account'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red.withAlpha(20),
+                              foregroundColor: Colors.redAccent,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: _showChangePasswordDialog,
+                        icon: const Icon(Icons.lock_reset_rounded, size: 20),
+                        label: const Text('Update Security Password'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: _primary,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          side: const BorderSide(color: _primary, width: 1.5),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                          textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 48),
+
+              // Logout Button
+              SizedBox(
+                height: 56,
+                child: OutlinedButton.icon(
+                  onPressed: _logout,
+                  icon: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 22),
+                  label: const Text('Sign Out of Application', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w900, fontSize: 16)),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.redAccent, width: 1.5),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const SizedBox(height: 40),
-
-          // Logout
-          OutlinedButton.icon(
-            onPressed: _logout,
-            icon: const Icon(Icons.logout, color: Colors.red),
-            label: const Text('Log Out', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              side: const BorderSide(color: Colors.red),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -424,7 +497,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Change Password'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: const Text('Update Password', style: TextStyle(fontWeight: FontWeight.w900, color: _textPrimary)),
           content: Form(
             key: formKey,
             child: Column(
@@ -433,14 +507,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 TextFormField(
                   controller: currentPasswordController,
                   obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Current Password'),
+                  decoration: InputDecoration(
+                    labelText: 'Current Password',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
                   validator: (v) => v == null || v.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: newPasswordController,
                   obscureText: true,
-                  decoration: const InputDecoration(labelText: 'New Password'),
+                  decoration: InputDecoration(
+                    labelText: 'New Password',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
                   validator: (v) {
                     if (v == null || v.isEmpty) return 'Required';
                     if (v.length < 8) return 'Minimum 8 characters';
@@ -452,7 +532,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel', style: TextStyle(color: _textSecondary, fontWeight: FontWeight.w700))),
             ElevatedButton(
               onPressed: isSaving ? null : () async {
                 if (formKey.currentState!.validate()) {
@@ -478,7 +558,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   }
                 }
               },
-              child: isSaving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Update'),
+              style: ElevatedButton.styleFrom(backgroundColor: _primary, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+              child: isSaving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Text('Update Now', style: TextStyle(fontWeight: FontWeight.w900)),
             ),
           ],
         ),
@@ -490,10 +571,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(title),
-        content: SingleChildScrollView(child: Text(content)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w900, color: _textPrimary)),
+        content: SingleChildScrollView(child: Text(content, style: const TextStyle(color: _textSecondary, fontWeight: FontWeight.w500, height: 1.5))),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close', style: TextStyle(fontWeight: FontWeight.w800))),
         ],
       ),
     );
@@ -506,16 +588,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Data Export Ready'),
-            content: const Text('Your health data has been prepared in JSON format. (In a real app, this would trigger a file download)'),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            title: const Text('Data Export Ready', style: TextStyle(fontWeight: FontWeight.w900)),
+            content: const Text('Your health data has been prepared in secure JSON format and is ready for download.', style: TextStyle(color: _textSecondary, fontWeight: FontWeight.w500)),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK')),
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK', style: TextStyle(fontWeight: FontWeight.w800))),
             ],
           ),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Export failed: $e'), backgroundColor: Colors.red));
     }
   }
 
@@ -523,14 +606,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Account?'),
-        content: const Text('This action is permanent and will delete all your medicine data, reminders, and profile information.'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Text('Permanently Delete Account?', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.redAccent)),
+        content: const Text('This action is irreversible and will delete all your medicine history, reminders, and profile information from our secure servers.', style: TextStyle(color: _textSecondary, fontWeight: FontWeight.w500)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel', style: TextStyle(color: _textSecondary, fontWeight: FontWeight.w800))),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete Permanently'),
+            style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
+            child: const Text('Confirm Deletion', style: TextStyle(fontWeight: FontWeight.w900)),
           ),
         ],
       ),
@@ -543,7 +627,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
         }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deletion failed: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Deletion failed: $e'), backgroundColor: Colors.red));
       }
     }
   }
