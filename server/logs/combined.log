@@ -579,3 +579,18 @@
 {"level":"info","message":"Fetched 1 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:37:38"}
 {"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 15:38:11"}
 {"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 15:38:11"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 16:38:46"}
+{"level":"info","message":"POST /api/refresh-token","service":"medicheck-backend","timestamp":"2026-05-02 16:38:46"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-02 16:38:46"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-02 16:38:47"}
+{"level":"info","message":"POST /api/check-interaction","service":"medicheck-backend","timestamp":"2026-05-02 16:39:01"}
+{"level":"info","message":"Checking interactions for: Ibuprofen 400mg, Aspirin 81mg","service":"medicheck-backend","timestamp":"2026-05-02 16:39:01"}
+{"level":"info","message":"POST /api/check-interaction","service":"medicheck-backend","timestamp":"2026-05-02 16:39:07"}
+{"level":"info","message":"Checking interactions for: Aspirin 81mg, paracetomol","service":"medicheck-backend","timestamp":"2026-05-02 16:39:07"}
+{"level":"info","message":"POST /api/check-interaction","service":"medicheck-backend","timestamp":"2026-05-02 16:39:11"}
+{"level":"info","message":"Checking interactions for: Aspirin 81mg, advil","service":"medicheck-backend","timestamp":"2026-05-02 16:39:11"}
+{"level":"warn","message":"FIREBASE_SERVICE_ACCOUNT not found. Push notifications will not be sent.","service":"medicheck-backend","timestamp":"2026-05-02 16:51:45"}
+{"level":"info","message":"🚀 Server running on http://localhost:5000","service":"medicheck-backend","timestamp":"2026-05-02 16:51:45"}
+{"level":"error","message":"Redis Client Error: connect ECONNREFUSED 127.0.0.1:6379. Ensuring graceful fallback.","service":"medicheck-backend","timestamp":"2026-05-02 16:51:45"}
+{"level":"warn","message":"Redis reconnection limit reached. Falling back to local cache permanently.","service":"medicheck-backend","timestamp":"2026-05-02 16:51:46"}
+{"level":"info","message":"✅ MongoDB Connected to: medicheck","service":"medicheck-backend","timestamp":"2026-05-02 16:51:49"}
