@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../services/token_service.dart';
+import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,6 +37,7 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   void initState() {
     super.initState();
+    _checkAutoLogin();
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
@@ -51,6 +54,16 @@ class _LoginScreenState extends State<LoginScreen>
       curve: const Interval(0.2, 1.0, curve: Curves.elasticOut),
     ));
     _animController.forward();
+  }
+
+  Future<void> _checkAutoLogin() async {
+    final bool loggedIn = await TokenService.isLoggedIn();
+    if (loggedIn) {
+      final bool authenticated = await AuthService.authenticate();
+      if (mounted && authenticated) {
+        Navigator.pushReplacementNamed(context, '/home');
+      }
+    }
   }
 
   @override

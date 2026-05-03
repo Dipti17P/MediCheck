@@ -52,11 +52,13 @@ void main() async {
       
       try {
         if (!kIsWeb) {
-          await Firebase.initializeApp();
-          FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+          // Only initialize if we're not on web and potentially have config
+          // For now, let's keep it optional to avoid crashes without google-services.json
+          // await Firebase.initializeApp();
+          // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
         }
       } catch (e) {
-        print("Firebase initialization error: $e");
+        debugPrint("Firebase initialization skipped: $e");
       }
       
       await NotificationService().init();
@@ -75,7 +77,7 @@ class MediCheckApp extends StatelessWidget {
       title: 'MediCheck AI',
       navigatorKey: navigatorKey,
       navigatorObservers: [
-        if (!kIsWeb) FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+        // if (!kIsWeb) FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
         SentryNavigatorObserver(),
       ],
       debugShowCheckedModeBanner: false,
@@ -106,7 +108,7 @@ class MediCheckApp extends StatelessWidget {
           fillColor: Colors.grey.shade50,
         ),
       ),
-      initialRoute: '/',
+      initialRoute: '/login',
       routes: {
         '/':               (context) => const SplashScreen(),
         '/login':          (context) => const LoginScreen(),
