@@ -5,21 +5,43 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 async function checkSymptoms(symptoms, profile) {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-3-flash" });
+    // ✅ Correct model name
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `
-      As a medical AI assistant, analyze the following symptoms:
-      Symptoms: ${symptoms}
-      User Profile: ${JSON.stringify(profile)}
+You are a medical AI assistant. Analyze the following symptoms and provide a structured assessment.
 
-      Provide a concise assessment including:
-      1. Possible causes (disclaimer: not a diagnosis).
-      2. Recommended urgency (Home Care, Consult Doctor, Urgent Care, Emergency).
-      3. Questions to consider.
-      4. Potential drug interactions with their current medications if provided.
+PATIENT PROFILE:
+- Age: ${profile.age || 'Not specified'}
+- Known Allergies: ${profile.allergies?.join(', ') || 'None reported'}
+- Medical History: ${profile.medicalHistory || 'None reported'}
 
-      IMPORTANT: Always start and end with a disclaimer that this is NOT medical advice and the user should consult a professional.
-    `;
+REPORTED SYMPTOMS: ${symptoms}
+
+Provide your response in this exact structure:
+
+**⚠️ DISCLAIMER**
+This is NOT medical advice. Always consult a qualified healthcare professional for diagnosis and treatment.
+
+**Possible Causes**
+List 2-4 possible causes with brief explanations.
+
+**Urgency Level**
+State one of: 🏠 Home Care | 👨⚕️ Consult Doctor (within 48h) | 🏥 Urgent Care (today) | 🚨 Emergency (call now)
+Explain why this urgency level applies.
+
+**Recommended Actions**
+List 3-5 specific actionable steps.
+
+**Questions to Discuss with Your Doctor**
+List 3 specific questions.
+
+**Drug Interaction Warning** (only if medications mentioned)
+If the patient mentioned any medications, flag potential concerns with their current medical history.
+
+**⚠️ REMINDER**
+This assessment is informational only. If symptoms worsen or you feel uncertain, seek immediate medical attention.
+    `.trim();
 
     const result = await model.generateContent(prompt);
     const response = await result.response;

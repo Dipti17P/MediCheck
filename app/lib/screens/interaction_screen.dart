@@ -314,6 +314,59 @@ class _InteractionScreenState extends State<InteractionScreen> {
     final overallRisk = _interactionResult!['overallRisk'] as String? ?? 'low';
     final interactions = (_interactionResult!['interactions'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
 
+    // ── Unknown / AI failure state ──────────────────────────────────────────
+    if (interactions.isNotEmpty &&
+        interactions.every((i) => i['riskLevel'] == 'unknown')) {
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.blueGrey.shade100, width: 2),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.blueGrey.shade50,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.cloud_off_rounded,
+                  color: Colors.blueGrey.shade400, size: 48),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Analysis Unavailable',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.blueGrey.shade700),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'The AI could not complete the analysis right now. Please try again in a moment, or consult your pharmacist directly.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.black54, height: 1.4),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: _checkInteraction,
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('Retry Analysis'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: _primary,
+                side: const BorderSide(color: _primary),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // ── Safe to combine state ────────────────────────────────────────────────
     if (interactions.isEmpty || overallRisk == 'low') {
       return Container(
         padding: const EdgeInsets.all(24),
@@ -362,7 +415,7 @@ class _InteractionScreenState extends State<InteractionScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
-              'Interaction Results (OpenFDA)',
+              'Interaction Results (Gemini AI)',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -384,10 +437,9 @@ class _InteractionScreenState extends State<InteractionScreen> {
         ),
         const SizedBox(height: 16),
         ...interactions.map((item) {
-          final riskLevel = item['riskLevel']?.toString() ?? 'UNKNOWN';
-          final warning = item['warning']?.toString() ?? '';
+          final riskLevel = item['riskLevel']?.toString() ?? 'unknown';
           final coReportCount = item['coReportCount'] as int? ?? 0;
-          
+
           return Card(
             elevation: 3,
             margin: const EdgeInsets.only(bottom: 16),
@@ -399,22 +451,17 @@ class _InteractionScreenState extends State<InteractionScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // ── Header ─────────────────────────────────────────────
                   Row(
                     children: [
                       Expanded(
                         child: Text(
                           "${item['drug1']} + ${item['drug2']}",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: _getRiskColor(riskLevel),
                           borderRadius: BorderRadius.circular(20),
@@ -424,45 +471,79 @@ class _InteractionScreenState extends State<InteractionScreen> {
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
+                            fontSize: 12,
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
-                  
-                  if (riskLevel.toUpperCase() == "HIGH") ...[
-                    const SizedBox(height: 12),
-                    const Text(
-                      "Consult your doctor before taking these medicines together.",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                  const SizedBox(height: 12),
 
-                  if (warning.isNotEmpty && riskLevel.toLowerCase() != 'low') ...[
-                    const SizedBox(height: 12),
-                    const Text(
-                      "Warnings:",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                  // ── Warning box ─────────────────────────────────────────
+                  if (item['warning'] != null)
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: _getRiskColor(riskLevel).withAlpha(20),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: _getRiskColor(riskLevel).withAlpha(80),
+                        ),
+                      ),
+                      child: Text(
+                        item['warning'].toString(),
+                        style: const TextStyle(fontSize: 14, height: 1.4),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Text("• ${warning.trim()}"),
+                  const SizedBox(height: 12),
+
+                  // ── Detail rows ─────────────────────────────────────────
+                  if (item['mechanism'] != null)
+                    _buildInfoRow('Mechanism', item['mechanism'].toString()),
+
+                  if (item['clinicalEffect'] != null)
+                    _buildInfoRow('Clinical Effect', item['clinicalEffect'].toString()),
+
+                  if (item['management'] != null)
+                    _buildInfoRow('What To Do', item['management'].toString()),
+
+                  if (item['alternatives'] != null &&
+                      item['alternatives'].toString() != 'null')
+                    _buildInfoRow('Safer Alternatives', item['alternatives'].toString()),
+
+                  const SizedBox(height: 10),
+
+                  // ── Doctor consult badge ────────────────────────────────
+                  if (item['requiresDoctorConsult'] == true)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.red.shade200),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.local_hospital_rounded, color: Colors.red, size: 14),
+                          SizedBox(width: 6),
+                          Text(
+                            'Doctor consultation required',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
 
                   const SizedBox(height: 10),
                   Text(
-                    "Source: OpenFDA (Co-reports: $coReportCount)",
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
-                    ),
+                    "Source: ${item['source'] ?? 'Gemini AI + OpenFDA'}"
+                    " • Co-reports: $coReportCount",
+                    style: const TextStyle(color: Colors.grey, fontSize: 11),
                   ),
                 ],
               ),
@@ -470,6 +551,27 @@ class _InteractionScreenState extends State<InteractionScreen> {
           );
         }).toList(),
       ],
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(value, style: const TextStyle(fontSize: 14, height: 1.4)),
+        ],
+      ),
     );
   }
 
