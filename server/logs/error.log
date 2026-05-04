@@ -129,3 +129,8 @@
 {"level":"error","message":"All Gemini models failed: All Gemini models exhausted or unavailable.","service":"medicheck-backend","timestamp":"2026-05-03 15:04:16"}
 {"level":"error","message":"All Gemini models failed: All Gemini models exhausted or unavailable.","service":"medicheck-backend","timestamp":"2026-05-03 15:05:08"}
 {"level":"error","message":"All Gemini models failed: All Gemini models exhausted or unavailable.","service":"medicheck-backend","timestamp":"2026-05-03 15:05:14"}
+{"level":"error","message":"Redis Client Error: connect ECONNREFUSED 127.0.0.1:6379. Ensuring graceful fallback.","service":"medicheck-backend","timestamp":"2026-05-04 21:41:20"}
+{"level":"error","message":"All Gemini models failed: All Gemini models exhausted or unavailable.","service":"medicheck-backend","timestamp":"2026-05-04 21:43:06"}
+{"level":"error","message":"Redis Client Error: connect ECONNREFUSED 127.0.0.1:6379. Ensuring graceful fallback.","service":"medicheck-backend","timestamp":"2026-05-04 21:47:19"}
+{"level":"error","message":"Redis Client Error: connect ECONNREFUSED 127.0.0.1:6379. Ensuring graceful fallback.","service":"medicheck-backend","timestamp":"2026-05-04 21:49:09"}
+{"level":"error","message":"Redis Client Error: connect ECONNREFUSED 127.0.0.1:6379. Ensuring graceful fallback.","service":"medicheck-backend","timestamp":"2026-05-04 21:51:00"}

@@ -366,8 +366,8 @@ class _InteractionScreenState extends State<InteractionScreen> {
       );
     }
 
-    // ── Safe to combine state ────────────────────────────────────────────────
-    if (interactions.isEmpty || overallRisk == 'low') {
+    // ── Safe to combine state (truly no interactions at all) ────────────────
+    if (interactions.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
@@ -438,7 +438,7 @@ class _InteractionScreenState extends State<InteractionScreen> {
         const SizedBox(height: 16),
         ...interactions.map((item) {
           final riskLevel = item['riskLevel']?.toString() ?? 'unknown';
-          final coReportCount = item['coReportCount'] as int? ?? 0;
+          final coReportCount = (item['coReportCount'] as num?)?.toInt() ?? 0;
 
           return Card(
             elevation: 3,

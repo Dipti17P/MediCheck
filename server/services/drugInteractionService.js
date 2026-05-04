@@ -112,8 +112,8 @@ async function getFdaLabelWarning(drug1, drug2) {
   return null;
 }
 
-// ── Step 3 (fallback): Static clinical knowledge base ────────────────────────
-// Used when ALL Gemini models are quota-exhausted.
+// ── Step 3: Static clinical knowledge base ─────────────────────────────────
+// Emergency fallback ONLY when ALL Gemini models fail.
 // Keys are alphabetically sorted: "drug1:drug2"
 const STATIC_INTERACTIONS = {
   'aspirin:ibuprofen': {
@@ -272,7 +272,7 @@ function lookupStaticInteraction(drug1, drug2) {
 // ── Step 4: Gemini AI interaction analysis (THE CORE) ────────────────────────
 
 // Model fallback chain — each has its own free-tier quota pool
-const GEMINI_MODELS = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash-8b'];
+const GEMINI_MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.5-pro'];
 
 async function callGeminiWithFallback(prompt) {
   for (const modelName of GEMINI_MODELS) {
@@ -383,29 +383,7 @@ async function getDrugInteractionData(drugA, drugB) {
     if (cached) return cached;
   }
 
-  // ── Check static knowledge base (instant, no quota) ──────────────────────
-  const staticData = lookupStaticInteraction(drug1, drug2);
-  if (staticData) {
-    logger.info('Static KB hit for: %s + %s', drug1, drug2);
-    const result = {
-      drug1: drugA,
-      drug2: drugB,
-      ...staticData,
-      coReportCount: 0,
-      fdaWarningFound: false,
-      source: 'Clinical Knowledge Base',
-      analyzedAt: new Date().toISOString(),
-    };
-    // Cache it
-    if (isRedisConnected) {
-      try { await redisClient.setEx(cacheKey, 86400, JSON.stringify(result)); } catch {}
-    } else {
-      localCache.set(cacheKey, result);
-    }
-    return result;
-  }
-
-  // ── Fetch FDA data + call Gemini AI for unknown pairs ────────────────────
+  // ── Fetch FDA data + call Gemini AI ────────────────────────────────────────
   const [fdaWarning, coReportCount] = await Promise.all([
     getFdaLabelWarning(drug1, drug2),
     getFdaCoReportCount(drug1, drug2),
