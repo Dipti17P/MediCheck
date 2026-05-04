@@ -24,6 +24,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   final _allergiesController = TextEditingController();
   final _historyController = TextEditingController();
+  final _ageController = TextEditingController();
+  final _weightController = TextEditingController();
+  
+  String _renalStatus = 'unknown';
+  String _hepaticStatus = 'unknown';
+
+  final List<String> _statusOptions = ['normal', 'mild_impairment', 'moderate_impairment', 'severe_impairment', 'dialysis', 'unknown'];
 
   bool _isEditing = false;
   bool _isSaving = false;
@@ -38,6 +45,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void dispose() {
     _allergiesController.dispose();
     _historyController.dispose();
+    _ageController.dispose();
+    _weightController.dispose();
     super.dispose();
   }
 
@@ -59,6 +68,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
           
           _historyController.text = data['medicalHistory'] ?? '';
+          _ageController.text = data['age']?.toString() ?? '';
+          _weightController.text = data['weight']?.toString() ?? '';
+          _renalStatus = data['renalStatus'] ?? 'unknown';
+          _hepaticStatus = data['hepaticStatus'] ?? 'unknown';
           
           _isLoading = false;
         });
@@ -88,6 +101,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final updatedProfile = await ApiService.updateProfile(
         allergies: allergiesList,
         medicalHistory: _historyController.text.trim(),
+        age: int.tryParse(_ageController.text.trim()),
+        weight: double.tryParse(_weightController.text.trim()),
+        renalStatus: _renalStatus,
+        hepaticStatus: _hepaticStatus,
       );
 
       if (mounted) {
@@ -141,6 +158,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   final allergies = _profile!['allergies'] as List<dynamic>?;
                   _allergiesController.text = allergies != null ? allergies.join(', ') : '';
                   _historyController.text = _profile!['medicalHistory'] ?? '';
+                  _ageController.text = _profile!['age']?.toString() ?? '';
+                  _weightController.text = _profile!['weight']?.toString() ?? '';
+                  _renalStatus = _profile!['renalStatus'] ?? 'unknown';
+                  _hepaticStatus = _profile!['hepaticStatus'] ?? 'unknown';
                 }
               });
             },
@@ -328,6 +349,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             _historyController.text.isEmpty ? 'No medical history reported.' : _historyController.text,
                             style: const TextStyle(color: _textSecondary, fontSize: 15, fontWeight: FontWeight.w500),
                           ),
+
+                    const SizedBox(height: 24),
+                    const Text('Vitals & Status', style: TextStyle(fontWeight: FontWeight.w800, color: _textPrimary, fontSize: 15)),
+                    const SizedBox(height: 10),
+                    
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _isEditing
+                            ? TextField(
+                                controller: _ageController,
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  labelText: 'Age',
+                                  filled: true,
+                                  fillColor: const Color(0xFFF8FAFC),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                                ),
+                              )
+                            : Text('Age: ${_ageController.text.isEmpty ? 'Unknown' : _ageController.text}', style: const TextStyle(color: _textSecondary, fontSize: 15, fontWeight: FontWeight.w500)),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _isEditing
+                            ? TextField(
+                                controller: _weightController,
+                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                decoration: InputDecoration(
+                                  labelText: 'Weight (kg)',
+                                  filled: true,
+                                  fillColor: const Color(0xFFF8FAFC),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                                ),
+                              )
+                            : Text('Weight: ${_weightController.text.isEmpty ? 'Unknown' : '${_weightController.text} kg'}', style: const TextStyle(color: _textSecondary, fontSize: 15, fontWeight: FontWeight.w500)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    if (_isEditing) ...[
+                      DropdownButtonFormField<String>(
+                        value: _renalStatus,
+                        decoration: InputDecoration(
+                          labelText: 'Renal Function',
+                          filled: true,
+                          fillColor: const Color(0xFFF8FAFC),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                        ),
+                        items: _statusOptions.map((s) => DropdownMenuItem(value: s, child: Text(s.replaceAll('_', ' ')))).toList(),
+                        onChanged: (val) => setState(() => _renalStatus = val ?? 'unknown'),
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        value: _hepaticStatus,
+                        decoration: InputDecoration(
+                          labelText: 'Hepatic Function',
+                          filled: true,
+                          fillColor: const Color(0xFFF8FAFC),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                        ),
+                        items: _statusOptions.where((s) => s != 'dialysis').map((s) => DropdownMenuItem(value: s, child: Text(s.replaceAll('_', ' ')))).toList(),
+                        onChanged: (val) => setState(() => _hepaticStatus = val ?? 'unknown'),
+                      ),
+                    ] else ...[
+                      Text('Renal: ${_renalStatus.replaceAll('_', ' ')}', style: const TextStyle(color: _textSecondary, fontSize: 15, fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 4),
+                      Text('Hepatic: ${_hepaticStatus.replaceAll('_', ' ')}', style: const TextStyle(color: _textSecondary, fontSize: 15, fontWeight: FontWeight.w500)),
+                    ],
 
                     if (_isEditing) ...[
                       const SizedBox(height: 32),

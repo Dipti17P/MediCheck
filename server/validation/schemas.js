@@ -29,6 +29,9 @@ const schemas = {
     drugName: Joi.string().required(),
     reason: Joi.string().allow('', null).optional()
   }),
+  getDosage: Joi.object({
+    drugName: Joi.string().required()
+  }),
   createReminder: Joi.object({
     medicineName: Joi.string().required(),
     time: Joi.string().required(),
@@ -38,6 +41,10 @@ const schemas = {
     active: Joi.boolean().default(true)
   }),
   updateProfile: Joi.object({
+    age: Joi.number().min(0).max(120).allow(null),
+    weight: Joi.number().min(0).max(300).allow(null),
+    renalStatus: Joi.string().valid('normal', 'mild_impairment', 'moderate_impairment', 'severe_impairment', 'dialysis', 'unknown').allow(null),
+    hepaticStatus: Joi.string().valid('normal', 'mild_impairment', 'moderate_impairment', 'severe_impairment', 'unknown').allow(null),
     allergies: Joi.array().items(Joi.string()).allow(null),
     medicalHistory: Joi.string().allow('', null)
   }),

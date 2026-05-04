@@ -13,6 +13,11 @@ class _ViewMedicineScreenState extends State<ViewMedicineScreen> {
   bool _isLoading = true;
   String? _errorMessage;
 
+  // Dosage tracking
+  final Map<String, bool> _dosageLoading = {};
+  final Map<String, Map<String, dynamic>> _dosageData = {};
+  final Map<String, String> _dosageError = {};
+
   // ── Colors ─────────────────────────────────────────────────────────────────
   static const Color _primary      = Color(0xFF2563EB);
   static const Color _primaryDark  = Color(0xFF1E40AF);
@@ -39,11 +44,35 @@ class _ViewMedicineScreenState extends State<ViewMedicineScreen> {
       setState(() {
         _medicines = data;
         _isLoading = false;
+        // Clear dosage state on refresh
+        _dosageLoading.clear();
+        _dosageData.clear();
+        _dosageError.clear();
       });
     } catch (e) {
       setState(() {
         _errorMessage = e.toString().replaceFirst('Exception: ', '');
         _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchDosage(String medId, String medName) async {
+    setState(() {
+      _dosageLoading[medId] = true;
+      _dosageError.remove(medId);
+    });
+
+    try {
+      final data = await ApiService.getDosageRecommendation(medName);
+      setState(() {
+        _dosageData[medId] = data;
+        _dosageLoading[medId] = false;
+      });
+    } catch (e) {
+      setState(() {
+        _dosageError[medId] = e.toString().replaceFirst('Exception: ', '');
+        _dosageLoading[medId] = false;
       });
     }
   }
@@ -166,31 +195,26 @@ class _ViewMedicineScreenState extends State<ViewMedicineScreen> {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1200),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final double width = constraints.maxWidth;
-            int crossAxisCount = 1;
-            if (width > 900) {
-              crossAxisCount = 3;
-            } else if (width > 600) {
-              crossAxisCount = 2;
-            }
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              double cardWidth = constraints.maxWidth;
+              if (constraints.maxWidth > 900) cardWidth = (constraints.maxWidth - 32) / 3;
+              else if (constraints.maxWidth > 600) cardWidth = (constraints.maxWidth - 16) / 2;
 
-            return GridView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-              itemCount: _medicines.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 0,
-                mainAxisExtent: 260, // Fixed height for consistency
-              ),
-              itemBuilder: (context, index) {
-                final med = _medicines[index];
-                return _buildMedicineCard(med);
-              },
-            );
-          },
+              return Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: _medicines.map((med) {
+                  return SizedBox(
+                    width: cardWidth,
+                    child: _buildMedicineCard(med),
+                  );
+                }).toList(),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -210,6 +234,7 @@ class _ViewMedicineScreenState extends State<ViewMedicineScreen> {
     final String name = parseField(med['name'], 'Unknown Medicine');
     final String uses = parseField(med['uses'], 'No description provided');
     final String sideEffects = parseField(med['sideEffects'], 'None listed');
+    final String medId = med['_id'] ?? name; // Use ID or name as key
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -294,6 +319,9 @@ class _ViewMedicineScreenState extends State<ViewMedicineScreen> {
                   content: sideEffects,
                   isWarning: true,
                 ),
+                const SizedBox(height: 16),
+                const Divider(color: Color(0xFFF1F5F9)),
+                _buildDosageSection(medId, name),
               ],
             ),
           ),
@@ -342,6 +370,124 @@ class _ViewMedicineScreenState extends State<ViewMedicineScreen> {
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildDosageSection(String medId, String medName) {
+    if (_dosageLoading[medId] == true) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: Center(child: CircularProgressIndicator(color: _primary, strokeWidth: 2)),
+      );
+    }
+
+    if (_dosageError[medId] != null) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Text('Error: ${_dosageError[medId]}', style: const TextStyle(color: Colors.redAccent, fontSize: 13)),
+      );
+    }
+
+    final data = _dosageData[medId];
+    if (data == null) {
+      return SizedBox(
+        width: double.infinity,
+        child: TextButton.icon(
+          onPressed: () => _fetchDosage(medId, medName),
+          icon: const Icon(Icons.auto_awesome_rounded, size: 18),
+          label: const Text('Get Personalized Dosage AI', style: TextStyle(fontWeight: FontWeight.w700)),
+          style: TextButton.styleFrom(
+            foregroundColor: const Color(0xFF6366F1), // Indigo
+            backgroundColor: const Color(0xFF6366F1).withAlpha(15),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+      );
+    }
+
+    final bool consultDoc = data['consultDoctorRequired'] == true;
+
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF6366F1).withAlpha(10), // Indigo tinted
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF6366F1).withAlpha(30)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.auto_awesome_rounded, color: Color(0xFF6366F1), size: 18),
+              const SizedBox(width: 8),
+              const Text('Personalized Dosage AI', style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF4F46E5))),
+              if (data['isPersonalized'] == true) ...[
+                const Spacer(),
+                const Icon(Icons.check_circle_rounded, color: Colors.green, size: 14),
+                const SizedBox(width: 4),
+                const Text('Vitals Applied', style: TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.bold)),
+              ]
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildDosageRow('Recommended', data['recommendedDosage'] ?? 'Consult Doctor'),
+          const SizedBox(height: 8),
+          _buildDosageRow('Max Daily Limit', data['maxDailyDose'] ?? 'Unknown'),
+          if (data['adjustmentsMade'] != null && data['adjustmentsMade'].toString().isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFF6366F1)),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(data['adjustmentsMade'], style: const TextStyle(fontSize: 13, color: Color(0xFF334155), height: 1.4))),
+                ],
+              ),
+            ),
+          ],
+          if (data['specialInstructions'] != null && data['specialInstructions'].toString().isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text('Instructions: ${data['specialInstructions']}', style: const TextStyle(fontSize: 13, color: Color(0xFF334155), fontWeight: FontWeight.w600)),
+          ],
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: consultDoc ? Colors.orange.shade50 : Colors.blueGrey.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: consultDoc ? Colors.orange.shade200 : Colors.blueGrey.shade200),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(consultDoc ? Icons.warning_rounded : Icons.info_rounded, size: 18, color: consultDoc ? Colors.orange.shade800 : Colors.blueGrey.shade700),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    data['disclaimer'] ?? 'AI estimates are not medical advice. ALWAYS consult your prescribing doctor.',
+                    style: TextStyle(fontSize: 12, color: consultDoc ? Colors.orange.shade900 : Colors.blueGrey.shade800, fontWeight: FontWeight.w600, height: 1.3),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDosageRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(width: 100, child: Text(label, style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), fontWeight: FontWeight.w600))),
+        Expanded(child: Text(value, style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B), fontWeight: FontWeight.bold))),
       ],
     );
   }

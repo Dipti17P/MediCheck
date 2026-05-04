@@ -1,6 +1,8 @@
 const Medicine = require("../models/Medicine");
 const logger = require("../utils/logger");
 const { getDrugAlternatives } = require("../services/drugAlternativeService");
+const { getDosageRecommendation } = require("../services/drugDosageService");
+const User = require("../models/User");
 
 // ADD MEDICINE
 exports.addMedicine = async (req, res, next) => {
@@ -80,6 +82,36 @@ exports.findAlternatives = async (req, res, next) => {
 
   } catch (error) {
     logger.error("Error finding alternatives: %o", error);
+    next(error);
+  }
+};
+
+// GET DOSAGE RECOMMENDATION
+exports.getDosage = async (req, res, next) => {
+  try {
+    const { drugName } = req.body;
+    
+    if (!drugName) {
+      return res.status(400).json({ success: false, message: 'Drug name is required.' });
+    }
+
+    // Fetch user for vitals
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    logger.info(`User ${req.user.userId} requested dosage for: ${drugName}`);
+    
+    const dosageData = await getDosageRecommendation(drugName, user);
+
+    res.json({
+      success: true,
+      data: dosageData
+    });
+
+  } catch (error) {
+    logger.error("Error getting dosage: %o", error);
     next(error);
   }
 };

@@ -48,7 +48,27 @@ This assessment is informational only. If symptoms worsen or you feel uncertain,
     return response.text();
   } catch (error) {
     logger.error("Gemini AI Error: %s", error.message);
-    throw new Error("Failed to analyze symptoms via AI.");
+    
+    // Graceful fallback for API limits
+    return `
+**⚠️ DISCLAIMER**
+This is NOT medical advice. Always consult a qualified healthcare professional for diagnosis and treatment.
+
+**API Rate Limit Reached**
+The MediCheck AI service is currently experiencing high traffic and we are unable to process your symptoms at this moment.
+
+**Urgency Level**
+🚨 **Unknown**
+Because we cannot evaluate your symptoms right now, please err on the side of caution.
+
+**Recommended Actions**
+- If you are experiencing severe pain, shortness of breath, chest pain, or bleeding, please **seek emergency medical care immediately**.
+- Try submitting your symptoms again in a few minutes.
+- Consult a healthcare professional if symptoms persist or worsen.
+
+**⚠️ REMINDER**
+This assessment is informational only. If symptoms worsen or you feel uncertain, seek immediate medical attention.
+    `.trim();
   }
 }
 

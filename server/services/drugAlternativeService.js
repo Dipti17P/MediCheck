@@ -98,7 +98,27 @@ Rules:
     return result;
   } catch (err) {
     logger.error('DrugAlt: All models failed for %s: %s', drugName, err.message);
-    throw err;
+    // Return graceful fallback if API quota is reached
+    return {
+      drug: drugName,
+      drugClass: "Unavailable (AI Rate Limited)",
+      primaryUse: "The MediCheck AI service is currently experiencing high traffic or rate limits.",
+      alternatives: [
+        {
+          name: "API Limit Reached",
+          brandExamples: [],
+          drugClass: "N/A",
+          comparisonToOriginal: "We are currently unable to analyze alternatives due to server limits. Please try again in 1-2 minutes.",
+          advantages: "N/A",
+          suitableFor: "N/A",
+          requiresPrescription: true,
+          availabilityInIndia: "moderate"
+        }
+      ],
+      generalAdvice: "Please try again later or consult a healthcare professional directly. AI generation is temporarily unavailable.",
+      alwaysConsultDoctor: true,
+      analyzedAt: new Date().toISOString(),
+    };
   }
 }
 

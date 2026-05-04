@@ -172,6 +172,15 @@ class ApiService {
     ));
   }
 
+  static Future<Map<String, dynamic>> getDosageRecommendation(String drugName) async {
+    final data = await _safeRequest(() async => http.post(
+      Uri.parse('$baseUrl/dosage'),
+      headers: await _headers(),
+      body: jsonEncode({'drugName': drugName}),
+    ));
+    return data['data'] ?? data;
+  }
+
   // ── Reminder Methods ──────────────────────────────
   static Future<Map<String, dynamic>> addReminder(Map<String, dynamic> reminder) async {
     final data = await _safeRequest(() async => http.post(
@@ -221,6 +230,10 @@ class ApiService {
   static Future<Map<String, dynamic>> updateProfile({
     List<String>? allergies,
     String? medicalHistory,
+    int? age,
+    double? weight,
+    String? renalStatus,
+    String? hepaticStatus,
   }) async {
     return await _safeRequest(() async => http.put(
       Uri.parse('$baseUrl/profile'),
@@ -228,6 +241,10 @@ class ApiService {
       body: jsonEncode({
         if (allergies != null) 'allergies': allergies,
         if (medicalHistory != null) 'medicalHistory': medicalHistory,
+        if (age != null) 'age': age,
+        if (weight != null) 'weight': weight,
+        if (renalStatus != null) 'renalStatus': renalStatus,
+        if (hepaticStatus != null) 'hepaticStatus': hepaticStatus,
       }),
     ));
   }

@@ -53,16 +53,20 @@ exports.changePassword = async (req, res, next) => {
 
 // UPDATE PROFILE
 exports.updateProfile = async (req, res, next) => {
-  try {
-    const { allergies, medicalHistory } = req.body;
-    
-    const user = await User.findById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
+    try {
+      const { age, weight, renalStatus, hepaticStatus, allergies, medicalHistory } = req.body;
+      
+      const user = await User.findById(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ success: false, message: "User not found" });
+      }
 
-    if (allergies !== undefined) user.allergies = allergies;
-    if (medicalHistory !== undefined) user.medicalHistory = medicalHistory;
+      if (age !== undefined) user.age = age;
+      if (weight !== undefined) user.weight = weight;
+      if (renalStatus !== undefined) user.renalStatus = renalStatus;
+      if (hepaticStatus !== undefined) user.hepaticStatus = hepaticStatus;
+      if (allergies !== undefined) user.allergies = allergies;
+      if (medicalHistory !== undefined) user.medicalHistory = medicalHistory;
 
     await user.save();
     logger.info(`Profile updated for user: ${req.user.userId}`);
@@ -73,6 +77,10 @@ exports.updateProfile = async (req, res, next) => {
       user: {
         name: user.name,
         email: user.email,
+        age: user.age,
+        weight: user.weight,
+        renalStatus: user.renalStatus,
+        hepaticStatus: user.hepaticStatus,
         allergies: user.allergies,
         medicalHistory: user.medicalHistory
       }

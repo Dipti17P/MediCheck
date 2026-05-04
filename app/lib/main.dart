@@ -39,7 +39,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   await SentryFlutter.init(
     (options) {
-      options.dsn = 'https://example@sentry.io/example';
+      options.dsn = ''; // Set to empty string to disable placeholder errors
       options.tracesSampleRate = 1.0;
     },
     appRunner: () async {

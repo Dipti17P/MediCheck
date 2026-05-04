@@ -280,13 +280,17 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
             ),
           ),
           const SizedBox(width: 12),
-          const Text(
-            'MediCheck AI',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w900,
-              color: _textPrimary,
-              letterSpacing: -0.5,
+          const Flexible(
+            child: Text(
+              'MediCheck AI',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+                color: _textPrimary,
+                letterSpacing: -0.5,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           const Spacer(),
