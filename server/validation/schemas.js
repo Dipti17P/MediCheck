@@ -25,6 +25,10 @@ const schemas = {
   checkInteraction: Joi.object({
     medicines: Joi.array().items(Joi.string()).min(2).required()
   }),
+  findAlternatives: Joi.object({
+    drugName: Joi.string().required(),
+    reason: Joi.string().allow('', null).optional()
+  }),
   createReminder: Joi.object({
     medicineName: Joi.string().required(),
     time: Joi.string().required(),

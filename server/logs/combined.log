@@ -1041,3 +1041,51 @@
 {"level":"error","message":"Redis Client Error: connect ECONNREFUSED 127.0.0.1:6379. Ensuring graceful fallback.","service":"medicheck-backend","timestamp":"2026-05-04 21:51:00"}
 {"level":"warn","message":"Redis reconnection limit reached. Falling back to local cache permanently.","service":"medicheck-backend","timestamp":"2026-05-04 21:51:01"}
 {"level":"info","message":"✅ MongoDB Connected to: medicheck","service":"medicheck-backend","timestamp":"2026-05-04 21:51:03"}
+{"level":"warn","message":"FIREBASE_SERVICE_ACCOUNT not found. Push notifications will not be sent.","service":"medicheck-backend","timestamp":"2026-05-04 21:56:16"}
+{"level":"info","message":"🚀 Server running on http://localhost:5000","service":"medicheck-backend","timestamp":"2026-05-04 21:56:16"}
+{"level":"error","message":"Redis Client Error: connect ECONNREFUSED 127.0.0.1:6379. Ensuring graceful fallback.","service":"medicheck-backend","timestamp":"2026-05-04 21:56:16"}
+{"level":"warn","message":"Redis reconnection limit reached. Falling back to local cache permanently.","service":"medicheck-backend","timestamp":"2026-05-04 21:56:17"}
+{"level":"info","message":"✅ MongoDB Connected to: medicheck","service":"medicheck-backend","timestamp":"2026-05-04 21:56:19"}
+{"level":"warn","message":"FIREBASE_SERVICE_ACCOUNT not found. Push notifications will not be sent.","service":"medicheck-backend","timestamp":"2026-05-04 21:58:21"}
+{"level":"info","message":"🚀 Server running on http://localhost:5000","service":"medicheck-backend","timestamp":"2026-05-04 21:58:21"}
+{"level":"error","message":"Redis Client Error: connect ECONNREFUSED 127.0.0.1:6379. Ensuring graceful fallback.","service":"medicheck-backend","timestamp":"2026-05-04 21:58:21"}
+{"level":"warn","message":"Redis reconnection limit reached. Falling back to local cache permanently.","service":"medicheck-backend","timestamp":"2026-05-04 21:58:21"}
+{"level":"info","message":"✅ MongoDB Connected to: medicheck","service":"medicheck-backend","timestamp":"2026-05-04 21:58:25"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-04 22:05:58"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-04 22:05:58"}
+{"level":"info","message":"GET /api/profile","service":"medicheck-backend","timestamp":"2026-05-04 22:05:58"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-04 22:05:58"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-04 22:05:58"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-04 22:05:58"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-04 22:05:58"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-04 22:05:58"}
+{"level":"info","message":"Fetched 0 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-04 22:05:59"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-04 22:05:59"}
+{"level":"info","message":"Fetched 0 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-04 22:05:59"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-04 22:06:39"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-04 22:06:39"}
+{"level":"info","message":"GET /api/profile","service":"medicheck-backend","timestamp":"2026-05-04 22:06:39"}
+{"level":"info","message":"Fetched 0 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-04 22:06:39"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-04 22:06:39"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-04 22:06:39"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-04 22:06:39"}
+{"level":"info","message":"GET /api/medicines","service":"medicheck-backend","timestamp":"2026-05-04 22:06:39"}
+{"level":"info","message":"Found 4 medicines for user: 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-04 22:06:40"}
+{"level":"info","message":"GET /api/reminders","service":"medicheck-backend","timestamp":"2026-05-04 22:06:40"}
+{"level":"info","message":"Fetched 0 reminders for user 69e904242cbc43a1d8ab20da (Page 1)","service":"medicheck-backend","timestamp":"2026-05-04 22:06:40"}
+{"level":"info","message":"POST /api/check-interaction","service":"medicheck-backend","timestamp":"2026-05-04 22:06:47"}
+{"level":"info","message":"Checking interactions for: Ibuprofen 400mg, advil","service":"medicheck-backend","timestamp":"2026-05-04 22:06:47"}
+{"level":"info","message":"Trying Gemini model: gemini-2.5-flash","service":"medicheck-backend","timestamp":"2026-05-04 22:06:49"}
+{"level":"info","message":"Gemini model succeeded: gemini-2.5-flash","service":"medicheck-backend","timestamp":"2026-05-04 22:07:00"}
+{"level":"info","message":"POST /api/check-interaction","service":"medicheck-backend","timestamp":"2026-05-04 22:07:04"}
+{"level":"info","message":"Checking interactions for: advil, paracetomol","service":"medicheck-backend","timestamp":"2026-05-04 22:07:04"}
+{"level":"info","message":"Trying Gemini model: gemini-2.5-flash","service":"medicheck-backend","timestamp":"2026-05-04 22:07:06"}
+{"level":"info","message":"Gemini model succeeded: gemini-2.5-flash","service":"medicheck-backend","timestamp":"2026-05-04 22:07:14"}
+{"level":"info","message":"POST /api/check-interaction","service":"medicheck-backend","timestamp":"2026-05-04 22:07:20"}
+{"level":"info","message":"Checking interactions for: advil, Aspirin 81mg","service":"medicheck-backend","timestamp":"2026-05-04 22:07:20"}
+{"level":"info","message":"Trying Gemini model: gemini-2.5-flash","service":"medicheck-backend","timestamp":"2026-05-04 22:07:23"}
+{"level":"info","message":"Gemini model succeeded: gemini-2.5-flash","service":"medicheck-backend","timestamp":"2026-05-04 22:07:34"}
+{"level":"info","message":"POST /api/check-interaction","service":"medicheck-backend","timestamp":"2026-05-04 22:07:42"}
+{"level":"info","message":"Checking interactions for: Ibuprofen 400mg, advil","service":"medicheck-backend","timestamp":"2026-05-04 22:07:42"}
+{"level":"info","message":"POST /api/check-interaction","service":"medicheck-backend","timestamp":"2026-05-04 22:07:48"}
+{"level":"info","message":"Checking interactions for: Ibuprofen 400mg, paracetomol","service":"medicheck-backend","timestamp":"2026-05-04 22:07:48"}

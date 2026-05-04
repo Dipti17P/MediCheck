@@ -18,6 +18,7 @@ import 'screens/interaction_screen.dart';
 import 'screens/reminder_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/ai_symptom_screen.dart';
+import 'screens/drug_alternative_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -119,6 +120,7 @@ class MediCheckApp extends StatelessWidget {
         '/check-interaction': (context) => const InteractionScreen(),
         '/reminder':       (context) => const ReminderScreen(),
         '/symptom-checker': (context) => const AISymptomScreen(),
+        '/find-alternatives': (context) => const DrugAlternativeScreen(),
       },
     );
   }

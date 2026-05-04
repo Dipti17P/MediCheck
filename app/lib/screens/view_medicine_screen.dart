@@ -262,6 +262,16 @@ class _ViewMedicineScreenState extends State<ViewMedicineScreen> {
                     ),
                   ),
                 ),
+                IconButton(
+                  icon: const Icon(Icons.swap_horiz_rounded, color: _primary),
+                  tooltip: 'Find Alternatives',
+                  onPressed: () {
+                    // We can pass the drug name as an argument if we update routing, 
+                    // but standard pushNamed works fine, the user can just type it in. 
+                    // Let's use push to pass arguments, or just go to the screen.
+                    Navigator.pushNamed(context, '/find-alternatives');
+                  },
+                ),
               ],
             ),
           ),

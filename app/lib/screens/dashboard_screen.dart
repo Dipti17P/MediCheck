@@ -536,12 +536,20 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
             onTap: () => Navigator.pushNamed(context, '/add-medicine').then((_) => _fetchSummaryData()),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
         Expanded(
           child: _buildActionBtn(
             icon: Icons.shield_rounded,
             label: 'Check Risk',
             onTap: () => Navigator.pushNamed(context, '/check-interaction'),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _buildActionBtn(
+            icon: Icons.swap_horiz_rounded,
+            label: 'Find Alt',
+            onTap: () => Navigator.pushNamed(context, '/find-alternatives'),
           ),
         ),
       ],
@@ -587,8 +595,10 @@ class _DashboardHomeState extends State<_DashboardHome> with SingleTickerProvide
               style: const TextStyle(
                 color: _textPrimary,
                 fontWeight: FontWeight.w700,
-                fontSize: 14,
+                fontSize: 13,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

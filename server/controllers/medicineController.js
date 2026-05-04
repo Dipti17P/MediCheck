@@ -1,5 +1,6 @@
 const Medicine = require("../models/Medicine");
 const logger = require("../utils/logger");
+const { getDrugAlternatives } = require("../services/drugAlternativeService");
 
 // ADD MEDICINE
 exports.addMedicine = async (req, res, next) => {
@@ -55,6 +56,30 @@ exports.getMedicines = async (req, res, next) => {
 
   } catch (error) {
     logger.error("Error fetching medicines: %o", error);
+    next(error);
+  }
+};
+
+// FIND DRUG ALTERNATIVES
+exports.findAlternatives = async (req, res, next) => {
+  try {
+    const { drugName, reason } = req.body;
+    
+    if (!drugName) {
+      return res.status(400).json({ success: false, message: 'Drug name is required.' });
+    }
+
+    logger.info(`User ${req.user.userId} requested alternatives for: ${drugName}`);
+    
+    const alternativesData = await getDrugAlternatives(drugName, reason);
+
+    res.json({
+      success: true,
+      data: alternativesData
+    });
+
+  } catch (error) {
+    logger.error("Error finding alternatives: %o", error);
     next(error);
   }
 };

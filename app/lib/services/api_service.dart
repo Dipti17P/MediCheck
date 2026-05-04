@@ -152,6 +152,18 @@ class ApiService {
     return data['medicines'] ?? [];
   }
 
+  static Future<Map<String, dynamic>> findAlternatives(String drugName, {String? reason}) async {
+    final body = {'drugName': drugName};
+    if (reason != null && reason.isNotEmpty) body['reason'] = reason;
+    
+    final data = await _safeRequest(() async => http.post(
+      Uri.parse('$baseUrl/find-alternatives'),
+      headers: await _headers(),
+      body: jsonEncode(body),
+    ));
+    return data['data'] ?? data;
+  }
+
   static Future<Map<String, dynamic>> checkInteractions(List<String> medicines) async {
     return await _safeRequest(() async => http.post(
       Uri.parse('$baseUrl/check-interaction'),
